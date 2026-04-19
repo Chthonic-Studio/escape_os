@@ -1,0 +1,276 @@
+[gd_scene format=3 uid="uid://1gvid3xcs25m"]
+
+[ext_resource type="Script" uid="uid://y7v0balo5ups" path="res://UI/game_scene.gd" id="1_x87qo"]
+[ext_resource type="PackedScene" uid="uid://cxacel25ajdx0" path="res://Scenes/greybox_level.tscn" id="2_level"]
+[ext_resource type="Texture2D" uid="uid://d8qwbl3f3vd7" path="res://Assets/Art/LD59_LogBG.png" id="3_6h5vk"]
+[ext_resource type="Texture2D" uid="uid://byjnnkbqx42cd" path="res://Assets/Art/LD59_RightPanelBG.png" id="4_fiftr"]
+[ext_resource type="Script" uid="uid://bm4kjvfq61tv1" path="res://UI/ai_log_feed.gd" id="5_logfeed"]
+[ext_resource type="Script" uid="uid://dkrftsv4vrs86" path="res://UI/t2_hud_overlay.gd" id="6_hud"]
+[ext_resource type="Script" uid="uid://cepc50adgjblb" path="res://UI/signal_indicator.gd" id="7_signal"]
+[ext_resource type="FontFile" uid="uid://b52e86kke41dv" path="res://Assets/PeaberryMono.ttf" id="8_font"]
+[ext_resource type="Script" uid="uid://cqu3qgy7vnp66" path="res://UI/hvt_tracker.gd" id="9_hvt"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_logfeed"]
+bg_color = Color(0, 0, 0, 0.4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sigpanel"]
+bg_color = Color(0, 0, 0, 0.5)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.2, 0.2, 0.3)
+
+[node name="GameScene" type="Control" unique_id=550890145]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_x87qo")
+metadata/_edit_use_anchors_ = true
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=211573772]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1736736561]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=784877944]
+custom_minimum_size = Vector2(480, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="MarginContainer/HBoxContainer/VBoxContainer" unique_id=1537464512]
+process_mode = 3
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="MarginContainer/HBoxContainer/VBoxContainer/SubViewportContainer" unique_id=423327816]
+handle_input_locally = false
+physics_object_picking = true
+size = Vector2i(480, 266)
+render_target_update_mode = 4
+
+[node name="GreyboxLevel" parent="MarginContainer/HBoxContainer/VBoxContainer/SubViewportContainer/SubViewport" unique_id=763061618 instance=ExtResource("2_level")]
+
+[node name="Log" type="Control" parent="MarginContainer/HBoxContainer/VBoxContainer" unique_id=273440166]
+clip_contents = true
+custom_minimum_size = Vector2(480, 90)
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="NinePatchRect" type="NinePatchRect" parent="MarginContainer/HBoxContainer/VBoxContainer/Log" unique_id=1661450039]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_6h5vk")
+
+[node name="AILogFeed" type="PanelContainer" parent="MarginContainer/HBoxContainer/VBoxContainer/Log" unique_id=1801901312]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 3.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_logfeed")
+script = ExtResource("5_logfeed")
+
+[node name="MarginContainer" type="Control" parent="MarginContainer/HBoxContainer/VBoxContainer/Log/AILogFeed" unique_id=689903589]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="HexBackground" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer/Log/AILogFeed/MarginContainer" unique_id=958667850]
+visible = false
+custom_minimum_size = Vector2(325, 0)
+layout_mode = 0
+theme_override_colors/font_color = Color(1, 0.2, 0.2, 0.12)
+theme_override_font_sizes/font_size = 8
+vertical_alignment = 3
+autowrap_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/VBoxContainer/Log/AILogFeed/MarginContainer" unique_id=577685640]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 4.0
+offset_right = 470.0
+offset_bottom = 75.0
+
+[node name="StatusContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer/VBoxContainer/Log/AILogFeed/MarginContainer/VBoxContainer" unique_id=1001590746]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="LeftColumn" type="VBoxContainer" parent="MarginContainer/HBoxContainer/VBoxContainer/Log/AILogFeed/MarginContainer/VBoxContainer/StatusContainer" unique_id=2112055770]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="PodSlotsLabel" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer/Log/AILogFeed/MarginContainer/VBoxContainer/StatusContainer/LeftColumn" unique_id=52690987]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 0.9)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 8
+text = "POD SLOTS: — / —"
+
+[node name="NpcCountLabel" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer/Log/AILogFeed/MarginContainer/VBoxContainer/StatusContainer/LeftColumn" unique_id=406593141]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.3, 0.9)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 8
+text = "CREW: — ALIVE | — DEAD"
+
+[node name="RightColumn" type="VBoxContainer" parent="MarginContainer/HBoxContainer/VBoxContainer/Log/AILogFeed/MarginContainer/VBoxContainer/StatusContainer" unique_id=378396292]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="PodTimerLabel" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer/Log/AILogFeed/MarginContainer/VBoxContainer/StatusContainer/RightColumn" unique_id=1789759018]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.2, 0.9)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 8
+text = "POD STATUS: STANDBY"
+
+[node name="AlienCountLabel" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer/Log/AILogFeed/MarginContainer/VBoxContainer/StatusContainer/RightColumn" unique_id=875869494]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 0.9)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 8
+text = "HOSTILES: 0"
+
+[node name="LogContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/VBoxContainer/Log/AILogFeed/MarginContainer/VBoxContainer" unique_id=458755295]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 0
+alignment = 2
+
+[node name="PanelContainer" type="Control" parent="MarginContainer/HBoxContainer" unique_id=1057565263]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NinePatchRect" type="NinePatchRect" parent="MarginContainer/HBoxContainer/PanelContainer" unique_id=1669321752]
+layout_mode = 0
+offset_right = 157.0
+offset_bottom = 360.0
+texture = ExtResource("4_fiftr")
+
+[node name="SidebarContent" type="VBoxContainer" parent="MarginContainer/HBoxContainer/PanelContainer" unique_id=1668739681]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 2.0
+offset_right = 155.0
+offset_bottom = 346.0
+theme_override_constants/separation = 8
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/HBoxContainer/PanelContainer/SidebarContent" unique_id=1041765804]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/HBoxContainer/PanelContainer/SidebarContent" unique_id=1050069926]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="T2HudOverlay" type="VBoxContainer" parent="MarginContainer/HBoxContainer/PanelContainer/SidebarContent" unique_id=1388596814]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+script = ExtResource("6_hud")
+
+[node name="ThreatLabel" type="Label" parent="MarginContainer/HBoxContainer/PanelContainer/SidebarContent/T2HudOverlay" unique_id=696435333]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.2, 0.2, 0.8)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("8_font")
+theme_override_font_sizes/font_size = 9
+text = "THREAT LEVEL: NOMINAL"
+
+[node name="ScoreLabel" type="Label" parent="MarginContainer/HBoxContainer/PanelContainer/SidebarContent/T2HudOverlay" unique_id=1024249511]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0, 0.8)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("8_font")
+theme_override_font_sizes/font_size = 9
+text = "SHV: 0.0"
+
+[node name="SignalIndicator" type="PanelContainer" parent="MarginContainer/HBoxContainer/PanelContainer/SidebarContent" unique_id=1499962397]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_sigpanel")
+script = ExtResource("7_signal")
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HBoxContainer/PanelContainer/SidebarContent/SignalIndicator" unique_id=856041421]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer/PanelContainer/SidebarContent/SignalIndicator/MarginContainer" unique_id=800805077]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="ColorIndicator" type="ColorRect" parent="MarginContainer/HBoxContainer/PanelContainer/SidebarContent/SignalIndicator/MarginContainer/HBoxContainer" unique_id=973335254]
+custom_minimum_size = Vector2(8, 8)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.3, 0.8, 1, 0.9)
+
+[node name="SignalLabel" type="Label" parent="MarginContainer/HBoxContainer/PanelContainer/SidebarContent/SignalIndicator/MarginContainer/HBoxContainer" unique_id=2019228461]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 0.9)
+theme_override_font_sizes/font_size = 8
+text = "SIGNAL: MOVE"
+
+[node name="ModeLabel" type="Label" parent="MarginContainer/HBoxContainer/PanelContainer/SidebarContent/SignalIndicator/MarginContainer/HBoxContainer" unique_id=1189490252]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 0.7)
+theme_override_font_sizes/font_size = 8
+text = "[E]"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/HBoxContainer/PanelContainer/SidebarContent" unique_id=2130977661]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer/HBoxContainer/PanelContainer/SidebarContent/ScrollContainer" unique_id=1809952130 groups=["hvt_grid"]]
+custom_minimum_size = Vector2(0, 260)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 1
+theme_override_constants/v_separation = 4
+columns = 3
+
+[node name="HVTTracker" type="Node" parent="MarginContainer/HBoxContainer/PanelContainer/SidebarContent" unique_id=1829566339]
+script = ExtResource("9_hvt")

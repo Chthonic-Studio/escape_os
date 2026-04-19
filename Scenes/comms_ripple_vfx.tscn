@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://dkkxuv8rmjqym"]
+
+[ext_resource type="Shader" uid="uid://0v71dq4yyjmy" path="res://Assets/Shaders/comms_ripple.gdshader" id="1_m3xpc"]
+[ext_resource type="Script" uid="uid://dtwjqd2q2daug" path="res://UI/comms_ripple_vfx.gd" id="2_6mscd"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tlg66"]
+shader = ExtResource("1_m3xpc")
+shader_parameter/color = Color(1, 0.2, 0.2, 1)
+shader_parameter/ring_radius = 0.0
+shader_parameter/thickness = 0.1
+
+[node name="CommsRippleVfx" type="ColorRect" unique_id=275544435]
+material = SubResource("ShaderMaterial_tlg66")
+offset_right = 256.0
+offset_bottom = 256.0
+pivot_offset = Vector2(128, 128)
+script = ExtResource("2_6mscd")

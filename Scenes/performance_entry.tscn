@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://wopyiu50hmny"]
+
+[node name="PerformanceEntry" type="Label" unique_id=1077619370]
+offset_right = 182.0
+offset_bottom = 12.0
+theme_override_font_sizes/font_size = 7
+text = "PERFORMANCE ENTRY"
+autowrap_mode = 3

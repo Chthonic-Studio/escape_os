@@ -1,0 +1,189 @@
+[gd_scene format=3 uid="uid://bmhm0k8c0hmga"]
+
+[ext_resource type="Script" uid="uid://5omxtj5ukmmn" path="res://UI/main_menu.gd" id="1_menu"]
+[ext_resource type="FontFile" uid="uid://b52e86kke41dv" path="res://Assets/PeaberryMono.ttf" id="2_48xlc"]
+
+[node name="MainMenu" type="CanvasLayer" unique_id=1075368449]
+layer = 100
+script = ExtResource("1_menu")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1953393321]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.02, 0.05, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=2078095728]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer" unique_id=31974194]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="Title" type="Label" parent="CenterContainer/VBox" unique_id=266614739]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.2, 0.2, 1)
+theme_override_fonts/font = ExtResource("2_48xlc")
+theme_override_font_sizes/font_size = 28
+text = "═══ ESCAPE_OS ═══"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="CenterContainer/VBox" unique_id=80685504]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_48xlc")
+theme_override_font_sizes/font_size = 12
+text = "Panic Protocol Artificial Intelligence - PPAI v7.4.9"
+horizontal_alignment = 1
+
+[node name="Label" type="Label" parent="CenterContainer/VBox" unique_id=622966505]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5019608, 0.5019608, 0.5019608, 1)
+theme_override_font_sizes/font_size = 10
+text = "You are a state-of-the-art AI installed in the corporation's business ships.
+Herd survivors away from carnivorous aliens to escape pods using ship systems and signals.
+Maximize shareholder value (SHV)... at any cost."
+horizontal_alignment = 1
+
+[node name="Spacer1" type="Control" parent="CenterContainer/VBox" unique_id=97258213]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="DifficultyLabel" type="Label" parent="CenterContainer/VBox" unique_id=1982491532]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_fonts/font = ExtResource("2_48xlc")
+theme_override_font_sizes/font_size = 14
+text = "SELECT THREAT ASSESSMENT LEVEL:"
+horizontal_alignment = 1
+
+[node name="DifficultyButtons" type="HBoxContainer" parent="CenterContainer/VBox" unique_id=963360970]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="EasyButton" type="Button" parent="CenterContainer/VBox/DifficultyButtons" unique_id=255285169]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_48xlc")
+text = "EASY"
+
+[node name="MediumButton" type="Button" parent="CenterContainer/VBox/DifficultyButtons" unique_id=1998658609]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_48xlc")
+text = "MEDIUM"
+
+[node name="HardButton" type="Button" parent="CenterContainer/VBox/DifficultyButtons" unique_id=1336370895]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_48xlc")
+text = "HARD"
+
+[node name="MaxScoreRow" type="HBoxContainer" parent="CenterContainer/VBox" unique_id=1122334455]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="EasyMaxScore" type="Label" parent="CenterContainer/VBox/MaxScoreRow" unique_id=-2061521730]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.8, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_48xlc")
+theme_override_font_sizes/font_size = 9
+text = "BEST: —"
+horizontal_alignment = 1
+
+[node name="MediumMaxScore" type="Label" parent="CenterContainer/VBox/MaxScoreRow" unique_id=-950410619]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.8, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_48xlc")
+theme_override_font_sizes/font_size = 9
+text = "BEST: —"
+horizontal_alignment = 1
+
+[node name="HardMaxScore" type="Label" parent="CenterContainer/VBox/MaxScoreRow" unique_id=160700492]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.8, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_48xlc")
+theme_override_font_sizes/font_size = 9
+text = "BEST: —"
+horizontal_alignment = 1
+
+[node name="Spacer2" type="Control" parent="CenterContainer/VBox" unique_id=751577561]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="StoryLabel" type="Label" parent="CenterContainer/VBox" unique_id=1806508106]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 12
+text = "STORY MODE:"
+horizontal_alignment = 1
+
+[node name="StoryButtons" type="HBoxContainer" parent="CenterContainer/VBox" unique_id=1571941578]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="StoryButton1" type="Button" parent="CenterContainer/VBox/StoryButtons" unique_id=569882554]
+custom_minimum_size = Vector2(120, 32)
+layout_mode = 2
+disabled = true
+text = "CHAPTER 1"
+
+[node name="StoryButton2" type="Button" parent="CenterContainer/VBox/StoryButtons" unique_id=706545337]
+custom_minimum_size = Vector2(120, 32)
+layout_mode = 2
+disabled = true
+text = "CHAPTER 2"
+
+[node name="StoryButton3" type="Button" parent="CenterContainer/VBox/StoryButtons" unique_id=713538512]
+custom_minimum_size = Vector2(120, 32)
+layout_mode = 2
+disabled = true
+text = "CHAPTER 3"
+
+[node name="Spacer3" type="Control" parent="CenterContainer/VBox" unique_id=415421205]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="Controls" type="Label" parent="CenterContainer/VBox" unique_id=1650517598]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_fonts/font = ExtResource("2_48xlc")
+theme_override_font_sizes/font_size = 10
+text = "CONTROLS & SIGNALS:
+WASD / Arrows — Pan Camera  |  Scroll — Zoom  |  Left Click — Interact
+E — Toggle Comms Mode (Click rooms to direct survivors and lure aliens)
+Q — Cycle Signal (MOVE [Cyan], RUN [Yellow], WAIT [Grey], LURE [Purple])
+R — Restart Level"
+horizontal_alignment = 1
+
+[node name="Spacer4" type="Control" parent="CenterContainer/VBox" unique_id=116349530]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="ExitButton" type="Button" parent="CenterContainer/VBox" unique_id=1004569447]
+custom_minimum_size = Vector2(120, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "EXIT GAME"
+
+[connection signal="pressed" from="CenterContainer/VBox/DifficultyButtons/EasyButton" to="." method="_on_difficulty_selected" binds= ["Easy"]]
+[connection signal="pressed" from="CenterContainer/VBox/DifficultyButtons/MediumButton" to="." method="_on_difficulty_selected" binds= ["Medium"]]
+[connection signal="pressed" from="CenterContainer/VBox/DifficultyButtons/HardButton" to="." method="_on_difficulty_selected" binds= ["Hard"]]
+[connection signal="pressed" from="CenterContainer/VBox/ExitButton" to="." method="_on_exit_pressed"]

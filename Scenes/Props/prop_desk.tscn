@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://drcry2jh1df1m"]
+
+[ext_resource type="Texture2D" uid="uid://6nrvk8etudin" path="res://Assets/props and items x1.png" id="1_7msou"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7kxqp"]
+atlas = ExtResource("1_7msou")
+region = Rect2(1.9479694, 98.92195, 27.30583, 27.305832)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_muj0e"]
+size = Vector2(25, 20)
+
+[node name="PropDesk" type="StaticBody2D" unique_id=1891386844]
+y_sort_enabled = true
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=468017751]
+texture = SubResource("AtlasTexture_7kxqp")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=767884224]
+position = Vector2(0.5, 3)
+shape = SubResource("RectangleShape2D_muj0e")
+
+[node name="NavigationObstacle2D" type="NavigationObstacle2D" parent="." unique_id=385262261]

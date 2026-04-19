@@ -1,0 +1,59 @@
+[gd_scene format=3 uid="uid://cibe2k4rotlk5"]
+
+[ext_resource type="Script" uid="uid://ctumwem7uo5nt" path="res://UI/hvt_entry.gd" id="1_hvt"]
+[ext_resource type="Texture2D" uid="uid://lmf1mxgd0w3e" path="res://Assets/Art/LD59_NPCPortrait.png" id="2_a4ygf"]
+
+[node name="HVTEntry" type="Control" unique_id=895876724]
+custom_minimum_size = Vector2(48, 70)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 48.0
+offset_bottom = 70.0
+script = ExtResource("1_hvt")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=160410698]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1325147100]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 47.0
+offset_bottom = 69.0
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=648976005]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer" unique_id=239762758]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.3, 0.9)
+theme_override_font_sizes/font_size = 7
+text = "CAPTAIN"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1838114337]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.3, 0.9)
+theme_override_font_sizes/font_size = 6
+text = "ACTIVE"
+horizontal_alignment = 1
+
+[node name="LocateButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1544413356]
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+theme_override_font_sizes/font_size = 6
+text = "LOCATE"
+
+[node name="Portrait" type="Sprite2D" parent="MarginContainer/VBoxContainer" unique_id=1193012293]
+position = Vector2(21, 49)
+texture = ExtResource("2_a4ygf")

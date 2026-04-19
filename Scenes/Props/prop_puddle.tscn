@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://nmdabflc7huo"]
+
+[ext_resource type="Texture2D" uid="uid://6nrvk8etudin" path="res://Assets/props and items x1.png" id="1_carpk"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nye8l"]
+atlas = ExtResource("1_carpk")
+region = Rect2(99.485245, 36.59427, 25.94506, 22.837059)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ffgtp"]
+
+[node name="Puddle" type="StaticBody2D" unique_id=354513766]
+collision_layer = 0
+collision_mask = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=725487584]
+texture = SubResource("AtlasTexture_nye8l")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1865220872]
+shape = SubResource("CircleShape2D_ffgtp")
+disabled = true

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="NPCClass" format=3 uid="uid://co1a73ir5gu4c"]
+
+[ext_resource type="Script" uid="uid://ctd6ahctqaayp" path="res://Scripts/Resources/npc_class.gd" id="1_im242"]
+
+[resource]
+script = ExtResource("1_im242")
+class_name_id = &"thief"
+display_name = "Thief"
+class_color = Color(0.3, 0.3, 0.3, 1)
+corporate_value = -10.0
+speed_modifier = 1.3

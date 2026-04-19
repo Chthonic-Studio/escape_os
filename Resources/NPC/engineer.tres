@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="NPCClass" format=3 uid="uid://dphh6d5tqsohe"]
+
+[ext_resource type="Script" uid="uid://ctd6ahctqaayp" path="res://Scripts/Resources/npc_class.gd" id="1_yp6wr"]
+
+[resource]
+script = ExtResource("1_yp6wr")
+class_name_id = &"engineer"
+display_name = "Engineer"
+class_color = Color(1, 0.55, 0, 1)
+corporate_value = 10.0
+speed_modifier = 1.1

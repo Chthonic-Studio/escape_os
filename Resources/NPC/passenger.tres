@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="NPCClass" format=3 uid="uid://ii82eq01e81a"]
+
+[ext_resource type="Script" uid="uid://ctd6ahctqaayp" path="res://Scripts/Resources/npc_class.gd" id="1_p4e2i"]
+
+[resource]
+script = ExtResource("1_p4e2i")
+class_name_id = &"Passenger"
+display_name = "Passenger"
+class_color = Color(0.7, 0.75, 0.8, 1)

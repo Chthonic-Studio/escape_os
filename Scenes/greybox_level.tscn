@@ -1,0 +1,102 @@
+[gd_scene format=3 uid="uid://cxacel25ajdx0"]
+
+[ext_resource type="Script" uid="uid://cm3kxpc2b6akf" path="res://Scripts/Debug/DEBUG_graybox_level.gd" id="1_sisq6"]
+[ext_resource type="Texture2D" uid="uid://16lk2xoxeg4m" path="res://Assets/Art/LD59_WallTile.png" id="2_tejou"]
+[ext_resource type="PackedScene" uid="uid://b5cs0vbledd8n" path="res://Scenes/door.tscn" id="2_vuf07"]
+[ext_resource type="PackedScene" uid="uid://dl8aqri7gd0sr" path="res://Scenes/human.tscn" id="3_n0d4q"]
+[ext_resource type="Texture2D" uid="uid://b808ry0i1nmea" path="res://Assets/Art/Nebula Red.png" id="3_puey4"]
+[ext_resource type="Script" uid="uid://cbp7qwi7ivag1" path="res://Scripts/Systems/ship_generator.gd" id="4_n0d4q"]
+[ext_resource type="Resource" uid="uid://b5u5nly7i55bt" path="res://Resources/Levels/easy.tres" id="5_8562i"]
+[ext_resource type="PackedScene" uid="uid://ca3shk54cachy" path="res://Scenes/airlock.tscn" id="7_cu0v0"]
+[ext_resource type="Texture2D" uid="uid://dkfiwbo0c3vsy" path="res://Assets/Art/LD59_FloorBasicTile.png" id="7_tejou"]
+[ext_resource type="Script" uid="uid://5vbtog2gfxqf" path="res://Scripts/Resources/room_theme.gd" id="7_wuf1l"]
+[ext_resource type="Resource" uid="uid://cg4d0purgpmas" path="res://Resources/Rooms/bridge.tres" id="8_cu0v0"]
+[ext_resource type="Script" uid="uid://ctd6ahctqaayp" path="res://Scripts/Resources/npc_class.gd" id="8_swljg"]
+[ext_resource type="Resource" uid="uid://d15aehv5wgwhv" path="res://Resources/Rooms/medbay.tres" id="9_2goml"]
+[ext_resource type="Resource" uid="uid://co1a73ir5gu4c" path="res://Resources/NPC/thief.tres" id="9_08pxk"]
+[ext_resource type="Resource" uid="uid://cmbfoc5cdepgk" path="res://Resources/Rooms/cafeteria.tres" id="10_eti28"]
+[ext_resource type="Resource" uid="uid://bs8edl5xeptwd" path="res://Resources/NPC/intern.tres" id="10_jivon"]
+[ext_resource type="Resource" uid="uid://bh4a8y2bgdv5v" path="res://Resources/NPC/captain.tres" id="11_0038t"]
+[ext_resource type="Resource" uid="uid://d1swvqog2o4qi" path="res://Resources/Rooms/basic_room.tres" id="11_cki31"]
+[ext_resource type="Resource" uid="uid://t2mdpif6g6cl" path="res://Resources/NPC/janitor.tres" id="12_suw13"]
+[ext_resource type="Resource" uid="uid://dphh6d5tqsohe" path="res://Resources/NPC/engineer.tres" id="13_wuf1l"]
+[ext_resource type="Resource" uid="uid://ii82eq01e81a" path="res://Resources/NPC/passenger.tres" id="14_cu0v0"]
+[ext_resource type="Resource" uid="uid://dugk01ggsype1" path="res://Resources/NPC/crewmember.tres" id="15_2goml"]
+[ext_resource type="Resource" uid="uid://clxaengrbf0ri" path="res://Resources/NPC/influencer.tres" id="16_eti28"]
+[ext_resource type="Resource" uid="uid://baaq6f2uxrfik" path="res://Resources/NPC/nepotism_hire.tres" id="17_cki31"]
+[ext_resource type="Texture2D" uid="uid://dqk52s5nd1ths" path="res://Assets/Art/Stars-Big_1_2_PC.png" id="27_qemj4"]
+[ext_resource type="Script" path="res://Scripts/Systems/camera_bounds.gd" id="cam_bounds"]
+[ext_resource type="Script" uid="uid://bj0bmsybixxtn" path="res://Scripts/Systems/camera_controller.gd" id="cam_ctrl"]
+[ext_resource type="PackedScene" uid="uid://c77vusgv481we" path="res://Scenes/escape_pod.tscn" id="pod_scene"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_w54ow"]
+texture = ExtResource("2_tejou")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ddhpt"]
+texture = ExtResource("7_tejou")
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_tejou"]
+physics_layer_0/collision_layer = 1
+terrain_set_0/mode = 1
+terrain_set_0/terrain_0/name = "Walls"
+terrain_set_0/terrain_0/color = Color(0.95686275, 0.06666667, 0, 1)
+sources/1 = SubResource("TileSetAtlasSource_ddhpt")
+sources/0 = SubResource("TileSetAtlasSource_w54ow")
+
+[node name="GreyboxLevel" type="Node2D" unique_id=1127154946]
+process_mode = 1
+script = ExtResource("1_sisq6")
+
+[node name="ParallaxNebula" type="Parallax2D" parent="." unique_id=1171193060]
+scroll_offset = Vector2(386, 312)
+repeat_size = Vector2(3000, 0)
+autoscroll = Vector2(20, 0)
+repeat_times = 3
+
+[node name="Sprite2D2" type="Sprite2D" parent="ParallaxNebula" unique_id=2142344790]
+position = Vector2(561, 116)
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("3_puey4")
+
+[node name="ParallaxStars" type="Parallax2D" parent="." unique_id=2099106823]
+scale = Vector2(0.75, 0.75)
+scroll_offset = Vector2(-734, -930)
+repeat_size = Vector2(2000, 2000)
+autoscroll = Vector2(2, 5)
+repeat_times = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="ParallaxStars" unique_id=1929806167]
+position = Vector2(716, 456)
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("27_qemj4")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=2095666418]
+tile_set = SubResource("TileSet_tejou")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=203023697]
+
+[node name="ShipGenerator" type="Node2D" parent="." unique_id=1190397812 node_paths=PackedStringArray("nav_region", "visual_tilemap")]
+script = ExtResource("4_n0d4q")
+ship_grid_size = Rect2i(0, 0, 100, 50)
+door_scene = ExtResource("2_vuf07")
+escape_pod_scene = ExtResource("pod_scene")
+npc_scene = ExtResource("3_n0d4q")
+nav_region = NodePath("../NavigationRegion2D")
+airlock_scene = ExtResource("7_cu0v0")
+visual_tilemap = NodePath("../TileMapLayer")
+room_themes = Array[ExtResource("7_wuf1l")]([ExtResource("8_cu0v0"), ExtResource("9_2goml"), ExtResource("10_eti28"), ExtResource("11_cki31")])
+level_config = ExtResource("5_8562i")
+npc_classes = Array[ExtResource("8_swljg")]([ExtResource("9_08pxk"), ExtResource("10_jivon"), ExtResource("11_0038t"), ExtResource("12_suw13"), ExtResource("13_wuf1l"), ExtResource("14_cu0v0"), ExtResource("15_2goml"), ExtResource("16_eti28"), ExtResource("17_cki31")])
+extra_corridor_chance = 0.8
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=990949990]
+position = Vector2(942, 532)
+zoom = Vector2(0.5, 0.5)
+script = ExtResource("cam_ctrl")
+
+[node name="CameraBounds" type="Node2D" parent="." unique_id=504164198]
+position = Vector2(-100, -100)
+script = ExtResource("cam_bounds")
+bounds_size = Vector2(1800, 1000)

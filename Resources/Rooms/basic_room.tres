@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="RoomTheme" format=3 uid="uid://d1swvqog2o4qi"]
+
+[ext_resource type="Script" uid="uid://5vbtog2gfxqf" path="res://Scripts/Resources/room_theme.gd" id="1_wvqun"]
+
+[resource]
+script = ExtResource("1_wvqun")
+metadata/_custom_type_script = "uid://5vbtog2gfxqf"

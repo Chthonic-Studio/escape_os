@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="NPCClass" format=3 uid="uid://baaq6f2uxrfik"]
+
+[ext_resource type="Script" uid="uid://ctd6ahctqaayp" path="res://Scripts/Resources/npc_class.gd" id="1_hxewe"]
+
+[resource]
+script = ExtResource("1_hxewe")
+class_name_id = &"nepotism_hire"
+display_name = "CEO's Nephew"
+class_color = Color(0.7, 0.3, 0.9, 1)
+corporate_value = 50.0
+speed_modifier = 0.7
+room_type_weights = {
+"OFFICE": 5.0,
+"RECREATION": 10.0
+}

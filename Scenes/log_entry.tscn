@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://csw6wnwcx7e4p"]
+
+[node name="LogEntry" type="Label" unique_id=974765862]
+offset_right = 170.0
+offset_bottom = 7.0
+theme_override_font_sizes/font_size = 6
+text = "> LOG ENTRY"
+autowrap_mode = 3

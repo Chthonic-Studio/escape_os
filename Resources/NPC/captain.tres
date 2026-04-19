@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="NPCClass" format=3 uid="uid://bh4a8y2bgdv5v"]
+
+[ext_resource type="Script" uid="uid://ctd6ahctqaayp" path="res://Scripts/Resources/npc_class.gd" id="1_dnuaw"]
+
+[resource]
+script = ExtResource("1_dnuaw")
+class_name_id = &"captain"
+display_name = "Captain"
+class_color = Color(1, 0.84, 0, 1)
+corporate_value = 25.0
+room_type_weights = {
+"BRIDGE": 20.0
+}

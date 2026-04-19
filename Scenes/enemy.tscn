@@ -1,0 +1,118 @@
+[gd_scene format=3 uid="uid://dy0lyvw8v15un"]
+
+[ext_resource type="Script" uid="uid://cw1uwfi0um4dk" path="res://Scripts/AI/enemy_controller.gd" id="1_enemy"]
+[ext_resource type="Texture2D" uid="uid://x52ayp82ct1x" path="res://Assets/Art/LD59_Enemy-Sheet.png" id="2_afpow"]
+[ext_resource type="Script" uid="uid://bjf7fcjcglxnb" path="res://Scripts/AI/ai_agent_component.gd" id="3_ai_comp"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_enemy"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_287tu"]
+atlas = ExtResource("2_afpow")
+region = Rect2(64, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0830c"]
+atlas = ExtResource("2_afpow")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ghaa6"]
+atlas = ExtResource("2_afpow")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1dp5w"]
+atlas = ExtResource("2_afpow")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_auwsv"]
+atlas = ExtResource("2_afpow")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8uf12"]
+atlas = ExtResource("2_afpow")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_po0sg"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_287tu")
+}],
+"loop": true,
+"name": &"eating",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0830c")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ghaa6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1dp5w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_auwsv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8uf12")
+}],
+"loop": true,
+"name": &"moving",
+"speed": 10.0
+}]
+
+[node name="Enemy" type="CharacterBody2D" unique_id=998412350 node_paths=PackedStringArray("ai_agent")]
+modulate = Color(1, 0.3, 0.3, 1)
+input_pickable = false
+motion_mode = 1
+script = ExtResource("1_enemy")
+ai_agent = NodePath("AIAgentComponent")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=327643481]
+shape = SubResource("CapsuleShape2D_enemy")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2026855839]
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_po0sg")
+animation = &"eating"
+
+[node name="NavAgent" type="NavigationAgent2D" parent="." unique_id=1968585696]
+
+[node name="AIAgentComponent" type="Node" parent="." unique_id=1969518730 node_paths=PackedStringArray("body", "nav_agent")]
+script = ExtResource("3_ai_comp")
+body = NodePath("..")
+nav_agent = NodePath("../NavAgent")
+
+[node name="InfoBox" type="Control" parent="." unique_id=1537151026]
+z_index = 10
+layout_mode = 3
+anchors_preset = 0
+offset_left = -20.0
+offset_top = -24.0
+offset_right = 60.0
+offset_bottom = 20.0
+mouse_filter = 2
+
+[node name="BoxOutline" type="ReferenceRect" parent="InfoBox" unique_id=726888830]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+border_color = Color(1, 0.1, 0.1, 0.6)
+border_width = 1.5
+editor_only = false
+
+[node name="InfoLabel" type="Label" parent="InfoBox" unique_id=70490763]
+layout_mode = 0
+offset_left = -30.0
+offset_top = -13.0
+offset_right = 70.0
+offset_bottom = -1.0
+theme_override_colors/font_color = Color(1, 0.1, 0.1, 0.8)
+theme_override_font_sizes/font_size = 9
+text = "HOSTILE // HUNTING"
+horizontal_alignment = 1

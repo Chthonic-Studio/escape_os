@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://ca3shk54cachy"]
+
+[ext_resource type="Script" uid="uid://cp114sy86bw0s" path="res://Scripts/Systems/airlock_system.gd" id="1_rejv3"]
+[ext_resource type="Texture2D" uid="uid://cpiy777sdoefd" path="res://Assets/Art/LD59_Airlock.png" id="2_rejv3"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7hg2v"]
+size = Vector2(32, 32)
+
+[node name="Airlock" type="Area2D" unique_id=608554954]
+z_index = 50
+input_pickable = true
+priority = 100
+script = ExtResource("1_rejv3")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=878438264]
+texture = ExtResource("2_rejv3")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1273944655]
+z_index = 50
+shape = SubResource("RectangleShape2D_7hg2v")
+
+[node name="Label" type="Label" parent="." unique_id=101336472]
+offset_left = -63.0
+offset_top = -46.0
+offset_right = 73.0
+offset_bottom = -23.0
+text = "Open the airlocks"

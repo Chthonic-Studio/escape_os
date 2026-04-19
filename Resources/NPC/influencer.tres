@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="NPCClass" format=3 uid="uid://clxaengrbf0ri"]
+
+[ext_resource type="Script" uid="uid://ctd6ahctqaayp" path="res://Scripts/Resources/npc_class.gd" id="1_r51ot"]
+
+[resource]
+script = ExtResource("1_r51ot")
+class_name_id = &"influencer"
+display_name = "Influencer"
+class_color = Color(1, 0.4, 0.7, 1)
+corporate_value = -20.0

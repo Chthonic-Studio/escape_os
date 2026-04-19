@@ -1,0 +1,102 @@
+[gd_scene format=3 uid="uid://dk2q8jt3n5h1a"]
+
+[ext_resource type="Script" uid="uid://c4t6qh5w1i18w" path="res://UI/assessment_screen.gd" id="1_assess"]
+
+[node name="AssessmentScreen" type="CanvasLayer" unique_id=1019281998]
+layer = 100
+script = ExtResource("1_assess")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1715981586]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.85)
+metadata/_edit_use_anchors_ = true
+
+[node name="CenterContainer" type="CenterContainer" parent="Background" unique_id=1961322527]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.109375
+anchor_top = -0.055555556
+anchor_right = 0.890625
+anchor_bottom = 1.0555556
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="PanelContainer" type="PanelContainer" parent="Background/CenterContainer" unique_id=920216309]
+clip_contents = true
+custom_minimum_size = Vector2(500, 400)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="Background/CenterContainer/PanelContainer" unique_id=1148140576]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Background/CenterContainer/PanelContainer/MarginContainer" unique_id=707139328]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=20500047]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 10
+text = "═══ SHAREHOLDER VALUE ASSESSMENT ═══"
+horizontal_alignment = 1
+
+[node name="Separator1" type="HSeparator" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=85982633]
+layout_mode = 2
+
+[node name="SummaryLabel" type="Label" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=586739404]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 8
+text = "SUBJECTS EVACUATED: 0  //  SUBJECTS TERMINATED: 0"
+horizontal_alignment = 1
+
+[node name="Separator2" type="HSeparator" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=161095615]
+layout_mode = 2
+
+[node name="ClassBreakdown" type="VBoxContainer" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1026234875]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Separator3" type="HSeparator" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1437246140]
+layout_mode = 2
+
+[node name="TotalLabel" type="Label" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1113203220]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 0.3, 1)
+theme_override_font_sizes/font_size = 9
+text = "TOTAL SHAREHOLDER VALUE: 0.0"
+horizontal_alignment = 1
+
+[node name="GradeLabel" type="Label" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=363765008]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 10
+text = "CORPORATE PERFORMANCE GRADE: C"
+horizontal_alignment = 1
+
+[node name="Separator4" type="HSeparator" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=666177654]
+layout_mode = 2
+
+[node name="RemarkLabel" type="Label" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=698266853]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 8
+text = "[REMARK: CLASSIFICATION ERROR. PLEASE REBOOT.]"
+horizontal_alignment = 1
+
+[node name="RestartLabel" type="Label" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=2036627409]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 8
+text = "[ Press R to return ]"
+horizontal_alignment = 1

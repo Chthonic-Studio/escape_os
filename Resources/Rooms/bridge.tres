@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RoomTheme" format=3 uid="uid://cg4d0purgpmas"]
+
+[ext_resource type="Script" uid="uid://5vbtog2gfxqf" path="res://Scripts/Resources/room_theme.gd" id="1_nvwdb"]
+
+[resource]
+script = ExtResource("1_nvwdb")
+theme_name = "Bridge"
+room_type = 6
+spawn_weight = 0.5
+metadata/_custom_type_script = "uid://5vbtog2gfxqf"
