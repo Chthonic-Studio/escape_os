@@ -57,6 +57,9 @@ func _ready() -> void:
 
 	_init_class_color()
 
+	## Register in the ShipData NPC cache via the event bus.
+	EventBus.npc_ready.emit(self)
+
 func _init_glow_shader() -> void:
 	if _box_outline and npc_class:
 		if GLOW_SHADER:
