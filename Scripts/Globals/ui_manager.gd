@@ -36,6 +36,10 @@ func _on_game_start_requested() -> void:
 
 ## Hide the loading screen once the ship is fully generated.
 func _on_ship_generated(_pod_positions: Array) -> void:
+	## Wait one frame so all synchronous ship_generated handlers (such as
+	## pathfinding warm-up) finish before the overlay is removed.
+	if get_tree() != null:
+		await get_tree().process_frame
 	## LoadingScreen also hides itself via its own signal handler; this is a safety net.
 	if _loading_screen != null and is_instance_valid(_loading_screen):
 		_loading_screen.visible = false
