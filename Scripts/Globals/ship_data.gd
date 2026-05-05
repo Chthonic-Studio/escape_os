@@ -48,6 +48,7 @@ var cached_enemies: Array = []
 func _ready() -> void:
 	EventBus.npc_ready.connect(_on_npc_ready)
 	EventBus.npc_died.connect(_on_npc_died)
+	EventBus.npc_escaped.connect(_on_npc_escaped)
 	EventBus.enemy_ready.connect(_on_enemy_ready)
 	EventBus.enemy_died.connect(_on_enemy_died)
 	EventBus.ship_generated.connect(_on_ship_generated)
@@ -63,6 +64,12 @@ func _on_npc_ready(npc: Node) -> void:
 		cached_npcs.append(npc)
 
 func _on_npc_died(npc: Node) -> void:
+	_remove_npc_from_cache(npc)
+
+func _on_npc_escaped(npc: Node) -> void:
+	_remove_npc_from_cache(npc)
+
+func _remove_npc_from_cache(npc: Node) -> void:
 	cached_npcs.erase(npc)
 
 func _on_enemy_ready(enemy: Node) -> void:
