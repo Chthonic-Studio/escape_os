@@ -190,17 +190,18 @@ func _update_speed_modifier() -> void:
 	if npc_class:
 		class_mod = npc_class.speed_modifier
 	var pacing: float = GameManager.speed_multiplier
+	var global_mod: float = GameManager.npc_global_speed_multiplier
 
 	match state_machine.current_state:
 		NPCStateMachine.State.PANICKING:
 			if personality == NPCPersonality.Type.RECKLESS:
-				ai_agent.base_speed = 60.0 * class_mod * pacing
+				ai_agent.base_speed = 60.0 * class_mod * pacing * global_mod
 			else:
-				ai_agent.base_speed = 50.0 * class_mod * pacing
+				ai_agent.base_speed = 50.0 * class_mod * pacing * global_mod
 		NPCStateMachine.State.FLEEING_TO_POD:
-			ai_agent.base_speed = 42.0 * class_mod * pacing
+			ai_agent.base_speed = 42.0 * class_mod * pacing * global_mod
 		_:
-			ai_agent.base_speed = 40.0 * class_mod * pacing
+			ai_agent.base_speed = 40.0 * class_mod * pacing * global_mod
 
 	if state_machine._run_boost_timer > 0.0:
 		ai_agent.base_speed *= NPCStateMachine.RUN_BOOST_MULTIPLIER

@@ -1,0 +1,111 @@
+[gd_scene format=3 uid="uid://bstorylvlbase1"]
+
+[ext_resource type="Script" uid="uid://bstorylvlbase2" path="res://Scripts/StoryMode/story_level_controller.gd" id="1_slc"]
+[ext_resource type="Texture2D" uid="uid://16lk2xoxeg4m" path="res://Assets/Art/LD59_WallTile.png" id="2_wall"]
+[ext_resource type="Texture2D" uid="uid://dkfiwbo0c3vsy" path="res://Assets/Art/LD59_FloorBasicTile.png" id="3_floor"]
+[ext_resource type="Texture2D" uid="uid://b808ry0i1nmea" path="res://Assets/Art/Nebula Red.png" id="4_nebula"]
+[ext_resource type="Texture2D" uid="uid://dqk52s5nd1ths" path="res://Assets/Art/Stars-Big_1_2_PC.png" id="5_stars"]
+[ext_resource type="PackedScene" uid="uid://dl8aqri7gd0sr" path="res://Scenes/human.tscn" id="6_npc"]
+[ext_resource type="Script" path="res://Scripts/Systems/camera_bounds.gd" id="7_camb"]
+[ext_resource type="Script" uid="uid://bj0bmsybixxtn" path="res://Scripts/Systems/camera_controller.gd" id="8_camc"]
+[ext_resource type="Resource" uid="uid://co1a73ir5gu4c" path="res://Resources/NPC/thief.tres" id="9_thief"]
+[ext_resource type="Resource" uid="uid://bs8edl5xeptwd" path="res://Resources/NPC/intern.tres" id="10_intern"]
+[ext_resource type="Resource" uid="uid://bh4a8y2bgdv5v" path="res://Resources/NPC/captain.tres" id="11_captain"]
+[ext_resource type="Resource" uid="uid://t2mdpif6g6cl" path="res://Resources/NPC/janitor.tres" id="12_janitor"]
+[ext_resource type="Resource" uid="uid://dphh6d5tqsohe" path="res://Resources/NPC/engineer.tres" id="13_engineer"]
+[ext_resource type="Resource" uid="uid://dugk01ggsype1" path="res://Resources/NPC/crewmember.tres" id="14_crew"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_wall"]
+texture = ExtResource("2_wall")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_floor"]
+texture = ExtResource("3_floor")
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_story"]
+physics_layer_0/collision_layer = 1
+terrain_set_0/mode = 1
+terrain_set_0/terrain_0/name = "Walls"
+terrain_set_0/terrain_0/color = Color(0.95686275, 0.06666667, 0, 1)
+sources/0 = SubResource("TileSetAtlasSource_wall")
+sources/1 = SubResource("TileSetAtlasSource_floor")
+
+## ─────────────────────────────────────────────────────────────────────────────
+## STORY LEVEL BASE SCENE
+## ─────────────────────────────────────────────────────────────────────────────
+## HOW TO USE:
+## 1. Duplicate this scene (Ctrl+Shift+D in the FileSystem dock) for each level.
+## 2. On the StoryLevelController node, set nav_region and visual_tilemap.
+## 3. Paint your ship on the TileMapLayer (source 0 = walls, source 1 = floors).
+## 4. Add RoomMarker children (Scripts/StoryMode/room_marker.gd) and set
+##    room_rect_tiles + room_type for each room.  Mark outer rooms is_outer_room=true.
+## 5. Instance door.tscn / escape_pod.tscn children and place them in the scene.
+## 6. Optionally add NpcSpawnPoint children for precise NPC placement.
+## 7. Tweak gameplay export variables on StoryLevelController in the Inspector.
+## ─────────────────────────────────────────────────────────────────────────────
+
+[node name="StoryLevel" type="Node2D"]
+process_mode = 1
+script = ExtResource("1_slc")
+nav_region = NodePath("NavigationRegion2D")
+visual_tilemap = NodePath("TileMapLayer")
+floor_tile_source_id = 1
+wall_tile_source_id = 0
+enemy_chase_speed = 70.0
+enemy_spawn_delay = 4.0
+enemy_respawn_interval = 20.0
+max_enemies_alive = 2
+npc_speed_modifier = 1.0
+escalation_interval = 30.0
+escalation_step = 0.12
+escape_pod_capacity_override = 0
+npc_scene = ExtResource("6_npc")
+npc_classes = Array[ExtResource("res://Scripts/Resources/npc_class.gd")]([ExtResource("9_thief"), ExtResource("10_intern"), ExtResource("11_captain"), ExtResource("12_janitor"), ExtResource("13_engineer"), ExtResource("14_crew")])
+npc_count = 10
+
+[node name="ParallaxNebula" type="Parallax2D" parent="."]
+scroll_offset = Vector2(386, 312)
+repeat_size = Vector2(3000, 0)
+autoscroll = Vector2(20, 0)
+repeat_times = 3
+
+[node name="NebulaSprite" type="Sprite2D" parent="ParallaxNebula"]
+position = Vector2(240, 134)
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("4_nebula")
+
+[node name="ParallaxStars" type="Parallax2D" parent="."]
+scale = Vector2(0.75, 0.75)
+scroll_offset = Vector2(-734, -930)
+repeat_size = Vector2(2000, 2000)
+autoscroll = Vector2(2, 5)
+repeat_times = 3
+
+[node name="StarsSprite" type="Sprite2D" parent="ParallaxStars"]
+position = Vector2(240, 134)
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("5_stars")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="."]
+tile_set = SubResource("TileSet_story")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+
+[node name="RoomMarkers" type="Node2D" parent="."]
+
+[node name="Doors" type="Node2D" parent="."]
+
+[node name="EscapePods" type="Node2D" parent="."]
+
+[node name="NpcSpawnPoints" type="Node2D" parent="."]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(240, 134)
+zoom = Vector2(0.5, 0.5)
+script = ExtResource("8_camc")
+
+[node name="CameraBounds" type="Node2D" parent="."]
+position = Vector2(-100, -100)
+script = ExtResource("7_camb")
+bounds_size = Vector2(900, 500)

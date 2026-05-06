@@ -1,7 +1,7 @@
 class_name MainMenu
 extends CanvasLayer
 
-## Main menu with difficulty selection.
+## Main menu with difficulty selection and story mode navigation.
 
 func _ready() -> void:
 	layer = 100
@@ -32,6 +32,10 @@ func _refresh_max_scores() -> void:
 func _on_difficulty_selected(difficulty_name: String) -> void:
 	UIManager.set_difficulty(difficulty_name)
 	EventBus.game_start_requested.emit()
+	queue_free()
+
+func _on_story_mode_pressed() -> void:
+	UIManager.add_story_select(get_parent())
 	queue_free()
 
 func _on_exit_pressed() -> void:

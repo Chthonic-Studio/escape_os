@@ -83,3 +83,7 @@ signal npc_ready(npc: Node)
 ## Emitted from EnemyController._ready() so ShipData can maintain its enemy cache.
 @warning_ignore("unused_signal")
 signal enemy_ready(enemy: Node)
+
+## Emitted when a story level is successfully loaded and about to start.
+@warning_ignore("unused_signal")
+signal story_level_started(story_id: StringName, level_index: int)

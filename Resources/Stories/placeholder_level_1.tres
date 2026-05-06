@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="StoryLevelData" format=3 uid="uid://bstorylvl_d01"]
+
+[ext_resource type="Script" uid="uid://bstory_lvldata1" path="res://Scripts/Resources/story_level_data.gd" id="1_sld"]
+
+[resource]
+script = ExtResource("1_sld")
+level_name = "The Outbreak"
+level_description = "An unforeseen biological incident has triggered a cascade failure aboard the vessel. Evacuate all surviving personnel before hostile lifeforms overwhelm the ship.\n\nObjective: Evacuate the crew. Survive."
+level_scene_path = ""

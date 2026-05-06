@@ -64,7 +64,7 @@ func _populate(escaped: int, died: int) -> void:
 	_remark_label.text = _get_ai_remark(grade)
 	_remark_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 
-	_restart_label.text = "\n[ Press R to return to Main Menu]"
+	_restart_label.text = "\n[ R — Restart Level  |  M — Return to Main Menu ]"
 	_restart_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 
 func _grade_color(grade: String) -> Color:
@@ -90,8 +90,16 @@ func _get_ai_remark(grade: String) -> String:
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
-	if event is InputEventKey and event.pressed and event.keycode == KEY_R:
-		get_viewport().set_input_as_handled()
-		GameManager.reset()
-		get_tree().reload_current_scene()
-		return
+	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_R:
+			get_viewport().set_input_as_handled()
+			GameManager.reset()
+			## In story mode, reloading respawns the same level (UIManager.active_story_level_scene is kept).
+			get_tree().reload_current_scene()
+			return
+		if event.keycode == KEY_M:
+			get_viewport().set_input_as_handled()
+			UIManager.exit_story_mode()
+			GameManager.reset()
+			get_tree().reload_current_scene()
+			return

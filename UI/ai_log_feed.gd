@@ -118,7 +118,7 @@ func _resolve_greybox_level() -> void:
 	if _greybox_level_resolved:
 		return
 	_greybox_level_resolved = true
-	_find_greybox_level(get_tree().root)
+	_find_level_node(get_tree().root)
 
 func _update_status_counters() -> void:
 	if not GameManager.enemies_active:
@@ -159,11 +159,12 @@ func _update_status_counters() -> void:
 				enemy_timer_str = " | NEXT: %.0fs" % enemy_time
 		_alien_count_label.text = "HOSTILES: %d%s" % [enemies, enemy_timer_str]
 
-func _find_greybox_level(node: Node) -> void:
-	if node is GreyboxLevel:
+## Recursively searches the scene tree for a GreyboxLevel or StoryLevelController.
+func _find_level_node(node: Node) -> void:
+	if node is GreyboxLevel or node is StoryLevelController:
 		_greybox_level = node
 		return
 	for child in node.get_children():
 		if _greybox_level != null:
 			return
-		_find_greybox_level(child)
+		_find_level_node(child)
