@@ -244,6 +244,13 @@ A `StoryData` resource represents a full campaign. It holds the story name, desc
 4. Click the story → select a level → choose a difficulty → click **START MISSION**.
 5. The loading screen will appear while the level sets up, then the game begins.
 
+### In-game controls
+
+| Key | Action |
+|---|---|
+| **Esc** | Open / close the **Pause Menu** (gameplay and AI freeze while open; Resume or Main Menu) |
+| **R** (on assessment screen) | Open the **Restart Confirmation** popup |
+
 If the story or level does not appear, check the [Troubleshooting](#troubleshooting) section below.
 
 ---

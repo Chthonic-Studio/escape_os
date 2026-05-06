@@ -3,6 +3,8 @@ extends CanvasLayer
 
 ## Post-game "Shareholder Value Assessment" screen.
 
+const RESTART_CONFIRM_SCENE = preload("res://Scenes/restart_confirm.tscn")
+
 @onready var _title_label: Label = $Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TitleLabel
 @onready var _summary_label: Label = $Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/SummaryLabel
 @onready var _class_breakdown: VBoxContainer = $Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ClassBreakdown
@@ -64,7 +66,7 @@ func _populate(escaped: int, died: int) -> void:
 	_remark_label.text = _get_ai_remark(grade)
 	_remark_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 
-	_restart_label.text = "\n[ R — Restart Level  |  M — Return to Main Menu ]"
+	_restart_label.text = "\n[ R — Restart Level  |  ESC — Pause Menu ]"
 	_restart_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 
 func _grade_color(grade: String) -> Color:
@@ -90,16 +92,17 @@ func _get_ai_remark(grade: String) -> String:
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
-	if event is InputEventKey and event.pressed:
+	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_R:
 			get_viewport().set_input_as_handled()
-			GameManager.reset()
-			## In story mode, reloading respawns the same level (UIManager.active_story_level_scene is kept).
-			get_tree().reload_current_scene()
-			return
-		if event.keycode == KEY_M:
-			get_viewport().set_input_as_handled()
-			UIManager.exit_story_mode()
-			GameManager.reset()
-			get_tree().reload_current_scene()
-			return
+			_show_restart_confirm()
+
+func _show_restart_confirm() -> void:
+	var confirm: RestartConfirm = RESTART_CONFIRM_SCENE.instantiate() as RestartConfirm
+	add_child(confirm)
+	confirm.confirmed.connect(_do_restart)
+
+func _do_restart() -> void:
+	GameManager.reset()
+	## In story mode, reloading respawns the same level (UIManager.active_story_level_scene is kept).
+	get_tree().reload_current_scene()
