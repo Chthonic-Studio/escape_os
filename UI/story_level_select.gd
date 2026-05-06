@@ -21,12 +21,12 @@ var _story_data: StoryData = null
 var _selected_level_index: int = -1
 var _selected_difficulty: String = "Easy"
 
-@onready var _story_title_label: Label = $Background/VBox/StoryTitleLabel
-@onready var _level_list: VBoxContainer = $Background/VBox/HBox/LeftPanel/ScrollContainer/LevelList
-@onready var _desc_title: Label = $Background/VBox/HBox/RightPanel/VBox/DescTitle
-@onready var _desc_text: Label = $Background/VBox/HBox/RightPanel/VBox/DescText
-@onready var _start_button: Button = $Background/VBox/BottomRow/StartButton
-@onready var _diff_buttons: HBoxContainer = $Background/VBox/DifficultyRow/DifficultyButtons
+@onready var _story_title_label: Label = $Background/VBox/TopMargin/StoryTitleLabel
+@onready var _level_list: VBoxContainer = $Background/VBox/HBox/LeftPanel/InnerVBox/ScrollContainer/LevelList
+@onready var _desc_title: Label = $Background/VBox/HBox/RightPanel/Margin/VBox/DescTitle
+@onready var _desc_text: Label = $Background/VBox/HBox/RightPanel/Margin/VBox/DescText
+@onready var _start_button: Button = $Background/VBox/BottomRow/BottomMargin/BottomButtons/StartButton
+@onready var _diff_buttons: HBoxContainer = $Background/VBox/DifficultyRow/DiffMargin/DiffInner/DifficultyButtons
 
 func _ready() -> void:
 	layer = 100

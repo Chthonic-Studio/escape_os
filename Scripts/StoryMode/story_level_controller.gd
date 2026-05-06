@@ -274,6 +274,8 @@ func _register_door(door: DoorSystem) -> void:
 	var touching: Array[int] = []
 	for i in range(ShipData.rooms.size()):
 		var rect: Rect2i = ShipData.rooms[i]["rect"]
+		## Expand the rect by 2 tiles on each side (4 total) to catch doors placed
+		## exactly on room borders, which would otherwise fall just outside both rects.
 		var exp := Rect2i(rect.position - Vector2i(2, 2), rect.size + Vector2i(4, 4))
 		if exp.has_point(door_tile):
 			touching.append(i)
@@ -340,7 +342,9 @@ func _spawn_from_points(points: Array[NpcSpawnPoint]) -> void:
 				npc.npc_class = npc_classes.pick_random()
 		add_child(npc)
 		var class_id: StringName = _get_npc_class_id(npc)
-		var room_type: int = ShipData.rooms[maxi(ShipData.get_room_at_world_pos(npc.global_position), 0)].get("room_type", 0)
+		var raw_room_idx: int = ShipData.get_room_at_world_pos(npc.global_position)
+		var room_idx: int = maxi(raw_room_idx, 0)
+		var room_type: int = ShipData.rooms[room_idx].get("room_type", 0)
 		EventBus.npc_spawned.emit(class_id, npc.global_position, room_type)
 
 func _spawn_in_rooms() -> void:

@@ -201,9 +201,10 @@ func _unlock_next_story_level() -> void:
 	if not _story_progress.has(sid):
 		_story_progress[sid] = []
 	var unlocks: Array = _story_progress[sid]
-	## Grow the array to cover all levels, first level is always unlocked.
+	## Grow the array to cover all levels.
 	while unlocks.size() < count:
 		unlocks.append(false)
+	## Level 0 is always unlocked.
 	unlocks[0] = true
 	## Unlock the completed level so it shows as "done".
 	unlocks[active_story_level_index] = true

@@ -20,9 +20,9 @@ const COLOR_DESC = Color(0.6, 0.6, 0.6, 1.0)
 var _font: FontFile = null
 var _stories: Array[StoryData] = []
 
-@onready var _desc_title: Label = $Background/HBox/RightPanel/VBox/DescTitle
-@onready var _desc_text: Label = $Background/HBox/RightPanel/VBox/DescText
-@onready var _story_list: VBoxContainer = $Background/HBox/LeftPanel/VBox/StoryList
+@onready var _desc_title: Label = $Background/HBox/RightPanel/VBox/MarginContainer/InnerVBox/DescTitle
+@onready var _desc_text: Label = $Background/HBox/RightPanel/VBox/MarginContainer/InnerVBox/DescText
+@onready var _story_list: VBoxContainer = $Background/HBox/LeftPanel/MarginContainer/VBox/ScrollContainer/StoryList
 
 func _ready() -> void:
 	layer = 100
