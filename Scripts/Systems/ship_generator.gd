@@ -126,9 +126,11 @@ func generate_ship() -> void:
 	ShipData.tile_size = _tile_size
 	ShipData.grid_rect = ship_grid_size
 
+	EventBus.generation_progress.emit("PARTITIONING SHIP LAYOUT...", 0.05)
+
 	var root := BSPLeaf.new(ship_grid_size.position.x, ship_grid_size.position.y, ship_grid_size.size.x, ship_grid_size.size.y)
 	_leaves.append(root)
-	
+
 	var did_split := true
 	while did_split:
 		did_split = false
@@ -140,40 +142,42 @@ func generate_ship() -> void:
 						_leaves.append(leaf.left_child)
 						_leaves.append(leaf.right_child)
 						did_split = true
-						
+
 	root.create_rooms(padding_tiles)
 	_draw_rooms_and_bake(root)
 
 func _draw_rooms_and_bake(root: BSPLeaf) -> void:
 	var nav_poly := NavigationPolygon.new()
-	
+
 	## Shrinks NavMesh by exactly half a tile so AI centers don't clip walls.
 	nav_poly.agent_radius = float(_tile_size.x) * 0.5
-	
+
 	var traversable_rects: Array[Rect2i] = []
 	var outer_leaves: Array[BSPLeaf] = []
-	
+
 	for leaf in _leaves:
 		if leaf.is_leaf():
 			traversable_rects.append(leaf.room_rect)
-			
+
 			var is_left_edge: bool = leaf.x <= ship_grid_size.position.x
 			var is_right_edge: bool = (leaf.x + leaf.width) >= (ship_grid_size.position.x + ship_grid_size.size.x)
 			var is_top_edge: bool = leaf.y <= ship_grid_size.position.y
 			var is_bottom_edge: bool = (leaf.y + leaf.height) >= (ship_grid_size.position.y + ship_grid_size.size.y)
-			
+
 			if is_left_edge or is_right_edge or is_top_edge or is_bottom_edge:
 				outer_leaves.append(leaf)
-	
+
+	EventBus.generation_progress.emit("CARVING CORRIDORS...", 0.20)
 	_carve_corridors(root, traversable_rects)
-	
+
 	ShipData.traversable_rects = traversable_rects
-	
+
+	EventBus.generation_progress.emit("BAKING NAVIGATION MESH...", 0.40)
 	var source_geometry := NavigationMeshSourceGeometryData2D.new()
 	for rect in traversable_rects:
 		var px_pos := Vector2(rect.position.x * _tile_size.x, rect.position.y * _tile_size.y)
 		var px_size := Vector2(rect.size.x * _tile_size.x, rect.size.y * _tile_size.y)
-		
+
 		var outline := PackedVector2Array([
 			px_pos,
 			Vector2(px_pos.x + px_size.x, px_pos.y),
@@ -181,27 +185,33 @@ func _draw_rooms_and_bake(root: BSPLeaf) -> void:
 			Vector2(px_pos.x, px_pos.y + px_size.y)
 		])
 		source_geometry.add_traversable_outline(outline)
-		
+
 	NavigationServer2D.bake_from_source_geometry_data(nav_poly, source_geometry)
 	nav_region.navigation_polygon = nav_poly
-	
+
+	EventBus.generation_progress.emit("PAINTING SHIP INTERIORS...", 0.55)
 	if visual_tilemap != null:
 		_paint_visual_tiles(traversable_rects, _leaves)
-		
+
 	for leaf in outer_leaves:
 		for i in range(ShipData.rooms.size()):
 			if ShipData.rooms[i]["rect"] == leaf.room_rect:
 				ShipData.outer_room_indices.append(i)
 				break
 
+	EventBus.generation_progress.emit("PLACING ESCAPE PODS...", 0.65)
 	_place_escape_pods(outer_leaves)
+	EventBus.generation_progress.emit("SPAWNING CREW...", 0.75)
 	_spawn_npcs()
+	EventBus.generation_progress.emit("REGISTERING DOORS...", 0.85)
 	_register_door_rooms()
 	_place_airlocks()
 	ShipData.build_cell_to_room_cache()
 
 	_label_rooms()
 
+	EventBus.generation_progress.emit("COMPUTING PATHFINDING CACHE...", 0.95)
+	## RoomPathfinder caches all paths when it receives ship_generated.
 	EventBus.ship_generated.emit.call_deferred(ShipData.escape_pod_positions)
 
 func _carve_corridors(node: BSPLeaf, traversable_rects: Array[Rect2i]) -> void:

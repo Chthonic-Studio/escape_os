@@ -71,3 +71,15 @@ signal enemies_have_spawned
 
 @warning_ignore("unused_signal")
 signal game_start_requested
+
+## Emitted by ShipGenerator during level build so the loading screen can show progress.
+@warning_ignore("unused_signal")
+signal generation_progress(step: String, pct: float)
+
+## Emitted from HumanController._ready() so ShipData can maintain its NPC cache.
+@warning_ignore("unused_signal")
+signal npc_ready(npc: Node)
+
+## Emitted from EnemyController._ready() so ShipData can maintain its enemy cache.
+@warning_ignore("unused_signal")
+signal enemy_ready(enemy: Node)

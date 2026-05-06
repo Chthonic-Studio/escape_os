@@ -37,6 +37,57 @@ var npc_room_counts: Dictionary = {}
 ## Pre-computed lookup: tile cell (Vector2i) → room index (int).
 var _cell_to_room: Dictionary = {}
 
+## Live NPC node cache — maintained via npc_ready / npc_died signals.
+## Use instead of get_tree().get_nodes_in_group("npcs").
+var cached_npcs: Array = []
+
+## Live enemy node cache — maintained via enemy_ready / enemy_died signals.
+## Use instead of get_tree().get_nodes_in_group("enemies").
+var cached_enemies: Array = []
+
+## Per-room NPC node buckets — room_index → Array of Node2D.
+## Rebuilt every frame by update_npc_room_counts(); used for local separation
+## queries so AIAgentComponent only scans same-room neighbours (O(k) not O(n)).
+var npc_nodes_by_room: Dictionary = {}
+
+## Per-room enemy node buckets — room_index → Array of Node2D.
+## Rebuilt alongside npc_nodes_by_room inside update_npc_room_counts().
+var enemy_nodes_by_room: Dictionary = {}
+
+func _ready() -> void:
+	EventBus.npc_ready.connect(_on_npc_ready)
+	EventBus.npc_died.connect(_on_npc_died)
+	EventBus.npc_escaped.connect(_on_npc_escaped)
+	EventBus.enemy_ready.connect(_on_enemy_ready)
+	EventBus.enemy_died.connect(_on_enemy_died)
+	EventBus.ship_generated.connect(_on_ship_generated)
+
+func _on_ship_generated(_pod_positions: Array) -> void:
+	## Cache clearing is handled in clear() which is called at the start of generate_ship().
+	## Nothing to do here — NPCs and enemies register themselves via npc_ready/enemy_ready
+	## signals during their _ready() calls, which fire before ship_generated.
+	pass
+
+func _on_npc_ready(npc: Node) -> void:
+	if not cached_npcs.has(npc):
+		cached_npcs.append(npc)
+
+func _on_npc_died(npc: Node) -> void:
+	_remove_npc_from_cache(npc)
+
+func _on_npc_escaped(npc: Node) -> void:
+	_remove_npc_from_cache(npc)
+
+func _remove_npc_from_cache(npc: Node) -> void:
+	cached_npcs.erase(npc)
+
+func _on_enemy_ready(enemy: Node) -> void:
+	if not cached_enemies.has(enemy):
+		cached_enemies.append(enemy)
+
+func _on_enemy_died(enemy: Node) -> void:
+	cached_enemies.erase(enemy)
+
 func clear() -> void:
 	floor_cells.clear()
 	wall_cells.clear()
@@ -51,6 +102,10 @@ func clear() -> void:
 	depressurized_rooms.clear()
 	npc_room_counts.clear()
 	_cell_to_room.clear()
+	cached_npcs.clear()
+	cached_enemies.clear()
+	npc_nodes_by_room.clear()
+	enemy_nodes_by_room.clear()
 
 func get_wall_adjacent_floor_cells() -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
@@ -144,13 +199,27 @@ func register_door_connection(door_node: Node, room_a_index: int, room_b_index: 
 	if room_a_index not in room_adjacency[room_b_index]:
 		room_adjacency[room_b_index].append(room_a_index)
 
-## Updates NPC counts per room each frame.
+## Updates NPC counts and per-room node buckets each frame using the cached lists.
+## Also rebuilds enemy_nodes_by_room so AIAgentComponent can query same-room
+## neighbours in O(k) instead of iterating the full caches (O(n²) total).
 func update_npc_room_counts() -> void:
 	npc_room_counts.clear()
-	var npcs := get_tree().get_nodes_in_group("npcs")
-	for npc in npcs:
+	npc_nodes_by_room.clear()
+	enemy_nodes_by_room.clear()
+	for npc in cached_npcs:
 		if not is_instance_valid(npc) or not npc is Node2D:
 			continue
 		var room_idx: int = get_room_at_world_pos(npc.global_position)
 		if room_idx >= 0:
 			npc_room_counts[room_idx] = npc_room_counts.get(room_idx, 0) + 1
+			if not npc_nodes_by_room.has(room_idx):
+				npc_nodes_by_room[room_idx] = []
+			npc_nodes_by_room[room_idx].append(npc)
+	for enemy in cached_enemies:
+		if not is_instance_valid(enemy) or not enemy is Node2D:
+			continue
+		var room_idx: int = get_room_at_world_pos(enemy.global_position)
+		if room_idx >= 0:
+			if not enemy_nodes_by_room.has(room_idx):
+				enemy_nodes_by_room[room_idx] = []
+			enemy_nodes_by_room[room_idx].append(enemy)

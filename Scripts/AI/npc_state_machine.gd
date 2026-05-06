@@ -440,8 +440,7 @@ func _should_panic() -> bool:
 
 	const PANIC_RANGE_SQ: float = 300.0 * 300.0
 
-	var enemies := controller.get_tree().get_nodes_in_group("enemies")
-	for enemy in enemies:
+	for enemy in ShipData.cached_enemies:
 		if not is_instance_valid(enemy) or not enemy is Node2D:
 			continue
 		if controller.global_position.distance_squared_to(enemy.global_position) > PANIC_RANGE_SQ:
@@ -495,8 +494,7 @@ func _coward_flee() -> void:
 	for n_idx in neighbors:
 		var n_rect: Rect2 = ShipData.get_room_world_rect(n_idx)
 		var has_alien: bool = false
-		var enemies := controller.get_tree().get_nodes_in_group("enemies")
-		for enemy in enemies:
+		for enemy in ShipData.cached_enemies:
 			if is_instance_valid(enemy) and enemy is Node2D:
 				if n_rect.has_point(enemy.global_position):
 					has_alien = true
@@ -578,8 +576,7 @@ func _flee_from_avoided_room() -> void:
 			continue
 		var n_rect: Rect2 = ShipData.get_room_world_rect(n_idx)
 		var has_enemy: bool = false
-		var enemies := controller.get_tree().get_nodes_in_group("enemies")
-		for enemy in enemies:
+		for enemy in ShipData.cached_enemies:
 			if is_instance_valid(enemy) and enemy is Node2D and n_rect.has_point(enemy.global_position):
 				has_enemy = true
 				break

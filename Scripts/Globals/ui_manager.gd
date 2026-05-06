@@ -18,8 +18,31 @@ var _max_scores: Dictionary = {}
 
 const SCORES_PATH: String = "user://scores.json"
 
+## Keeps a reference so we can show/hide without re-instantiation.
+var _loading_screen: LoadingScreen = null
+
 func _ready() -> void:
 	_load_scores()
+	EventBus.game_start_requested.connect(_on_game_start_requested)
+	EventBus.ship_generated.connect(_on_ship_generated)
+
+## Show the loading screen when a new level starts generating.
+func _on_game_start_requested() -> void:
+	if _loading_screen != null and is_instance_valid(_loading_screen):
+		_loading_screen.visible = true
+	elif get_tree() != null:
+		_loading_screen = LoadingScreen.new()
+		get_tree().root.add_child(_loading_screen)
+
+## Hide the loading screen once the ship is fully generated.
+func _on_ship_generated(_pod_positions: Array) -> void:
+	## Wait one frame so all synchronous ship_generated handlers (such as
+	## pathfinding warm-up) finish before the overlay is removed.
+	if get_tree() != null:
+		await get_tree().process_frame
+	## LoadingScreen also hides itself via its own signal handler; this is a safety net.
+	if _loading_screen != null and is_instance_valid(_loading_screen):
+		_loading_screen.visible = false
 
 func set_difficulty(difficulty_name: String) -> void:
 	if DIFFICULTY_CONFIGS.has(difficulty_name):

@@ -49,6 +49,14 @@ var _last_position: Vector2 = Vector2.ZERO
 const DEADLOCK_TIME_THRESHOLD: float = 1.5
 const DEADLOCK_DIST_SQ_THRESHOLD: float = 16.0
 
+## Room-graph routing: track the last resolved rooms so we only call
+## ai_agent.set_target() when the situation actually changes.
+var _routing_my_room: int = -2
+var _routing_target_room: int = -2
+## Minimum distance the target must move within the same room before we re-path.
+const SAME_ROOM_REPATH_DIST_SQ: float = 28.0 * 28.0
+var _routing_last_target_pos: Vector2 = Vector2.INF
+
 func _ready() -> void:
 	assert(ai_agent != null, "EnemyController requires an AIAgentComponent.")
 	add_to_group("enemies")
@@ -57,6 +65,9 @@ func _ready() -> void:
 	_last_position = global_position
 	_pick_nearest_target()
 	EventBus.comms_signal_sent.connect(_on_comms_signal_sent)
+
+	## Register in the ShipData enemy cache via the event bus.
+	EventBus.enemy_ready.emit(self)
 
 func _physics_process(delta: float) -> void:
 	if _is_stunned:
@@ -126,14 +137,15 @@ func _process_hunting(delta: float) -> void:
 			var alt_target := _find_alternate_target()
 			if alt_target != null:
 				_current_target_npc = alt_target
-				ai_agent.set_target(alt_target.global_position)
+				_routing_my_room = -2
+				_routing_target_room = -2
 				_stuck_timer = 0.0
 				return
 		_check_if_trapped()
 		if current_state == EnemyState.ATTACKING_DOOR:
 			return
 
-	ai_agent.set_target(_current_target_npc.global_position)
+	_update_routing_target()
 
 	if _is_in_kill_range(_current_target_npc):
 		if _current_target_npc is HumanController:
@@ -141,6 +153,54 @@ func _process_hunting(delta: float) -> void:
 			_update_info_label()
 			if killed:
 				_on_target_killed()
+
+## Updates the nav-agent target using room-graph A* routing.
+## Calls ai_agent.set_target() only when the routing situation changes,
+## dramatically reducing NavigationServer2D path queries.
+func _update_routing_target() -> void:
+	if not is_instance_valid(_current_target_npc):
+		return
+
+	var my_room: int = ShipData.get_room_at_world_pos(global_position)
+	var target_room: int = ShipData.get_room_at_world_pos(_current_target_npc.global_position)
+
+	if my_room < 0:
+		## Outside the nav graph — fall back to direct targeting.
+		var tpos: Vector2 = _current_target_npc.global_position
+		if tpos.distance_squared_to(_routing_last_target_pos) > SAME_ROOM_REPATH_DIST_SQ:
+			_routing_last_target_pos = tpos
+			ai_agent.set_target(tpos)
+		return
+
+	if my_room == target_room:
+		## Same room: target the NPC directly, but throttle re-paths by distance moved.
+		var tpos: Vector2 = _current_target_npc.global_position
+		if (my_room != _routing_my_room or target_room != _routing_target_room or
+				tpos.distance_squared_to(_routing_last_target_pos) > SAME_ROOM_REPATH_DIST_SQ):
+			_routing_my_room = my_room
+			_routing_target_room = target_room
+			_routing_last_target_pos = tpos
+			ai_agent.set_target(tpos)
+		return
+
+	## Different rooms: route via the room graph.
+	## Re-path only when the enemy or target changes rooms.
+	if my_room == _routing_my_room and target_room == _routing_target_room:
+		return
+
+	_routing_my_room = my_room
+	_routing_target_room = target_room
+
+	var next_room: int = RoomPathfinder.get_next_room(my_room, target_room)
+	if next_room < 0 or next_room == my_room:
+		## No path through the room graph — aim at the target directly.
+		_routing_last_target_pos = _current_target_npc.global_position
+		ai_agent.set_target(_routing_last_target_pos)
+	else:
+		## Aim at the door leading toward the target room.
+		var door_pos: Vector2 = RoomPathfinder.get_door_pos(my_room, next_room)
+		_routing_last_target_pos = door_pos
+		ai_agent.set_target(door_pos)
 
 func _process_idle(delta: float) -> void:
 	_idle_wander_timer += delta
@@ -156,7 +216,8 @@ func _process_idle(delta: float) -> void:
 			var d: float = global_position.distance_squared_to(nearest.global_position)
 			if d < DETECTION_RANGE_SQ:
 				_current_target_npc = nearest
-				ai_agent.set_target(nearest.global_position)
+				_routing_my_room = -2
+				_routing_target_room = -2
 				_enter_state(EnemyState.HUNTING)
 		else:
 			_check_if_trapped()
@@ -173,7 +234,8 @@ func _process_resting(delta: float) -> void:
 		var nearest := _find_nearest_living_npc()
 		if nearest != null:
 			_current_target_npc = nearest
-			ai_agent.set_target(nearest.global_position)
+			_routing_my_room = -2
+			_routing_target_room = -2
 			_enter_state(EnemyState.HUNTING)
 		else:
 			_enter_idle()
@@ -182,6 +244,8 @@ func _enter_idle() -> void:
 	_current_target_npc = null
 	_idle_wander_timer = 0.0
 	_is_investigating = false
+	_routing_my_room = -2
+	_routing_target_room = -2
 	_enter_state(EnemyState.IDLE)
 	_wander_in_current_room()
 
@@ -191,6 +255,8 @@ func _enter_resting() -> void:
 	_rest_wander_timer = 0.0
 	_rest_duration = randf_range(3.0, 5.0)
 	_is_investigating = false
+	_routing_my_room = -2
+	_routing_target_room = -2
 	_enter_state(EnemyState.RESTING)
 	_wander_in_current_room()
 
@@ -238,7 +304,8 @@ func _process_attacking_door(delta: float) -> void:
 		var nearest := _find_nearest_living_npc()
 		if nearest != null:
 			_current_target_npc = nearest
-			ai_agent.set_target(nearest.global_position)
+			_routing_my_room = -2
+			_routing_target_room = -2
 			_enter_state(EnemyState.HUNTING)
 		else:
 			_enter_idle()
@@ -256,7 +323,8 @@ func _process_attacking_door(delta: float) -> void:
 			var nearest := _find_nearest_living_npc()
 			if nearest != null:
 				_current_target_npc = nearest
-				ai_agent.set_target(nearest.global_position)
+				_routing_my_room = -2
+				_routing_target_room = -2
 				_enter_state(EnemyState.HUNTING)
 			else:
 				_enter_idle()
@@ -282,12 +350,11 @@ func _wander_in_current_room() -> void:
 		ai_agent.set_target(global_position + random_offset)
 
 func _find_nearest_living_npc() -> Node2D:
-	var npcs := get_tree().get_nodes_in_group("npcs")
 	var best_npc: Node2D = null
 	var best_dist_sq: float = INF
 	var my_room: int = ShipData.get_room_at_world_pos(global_position)
 
-	for npc in npcs:
+	for npc in ShipData.cached_npcs:
 		if not is_instance_valid(npc) or not npc is Node2D:
 			continue
 		if npc is HumanController and npc.state_machine.current_state == NPCStateMachine.State.DEAD:
@@ -353,12 +420,11 @@ func _find_blocking_door_toward(my_room: int, target_room: int) -> DoorSystem:
 
 ## Finds a different reachable NPC target.
 func _find_alternate_target() -> Node2D:
-	var npcs := get_tree().get_nodes_in_group("npcs")
 	var best_npc: Node2D = null
 	var best_dist_sq: float = INF
 	var my_room: int = ShipData.get_room_at_world_pos(global_position)
 
-	for npc in npcs:
+	for npc in ShipData.cached_npcs:
 		if not is_instance_valid(npc) or not npc is Node2D:
 			continue
 		if npc == _current_target_npc:
@@ -391,18 +457,21 @@ func _doors_open_between(room_a: int, room_b: int) -> bool:
 func _pick_nearest_target() -> void:
 	var best_npc := _find_nearest_living_npc()
 	_current_target_npc = best_npc
+	_routing_my_room = -2
+	_routing_target_room = -2
 	if is_instance_valid(_current_target_npc):
 		ai_agent.set_target(_current_target_npc.global_position)
 
 func _on_target_killed() -> void:
 	_current_target_npc = null
+	_routing_my_room = -2
+	_routing_target_room = -2
 
 	var nearest := _find_nearest_living_npc()
 	if nearest != null:
 		var d: float = global_position.distance_squared_to(nearest.global_position)
 		if d < DETECTION_RANGE_SQ:
 			_current_target_npc = nearest
-			ai_agent.set_target(nearest.global_position)
 			_enter_state(EnemyState.HUNTING)
 			return
 
@@ -455,10 +524,11 @@ func stun(duration: float) -> void:
 	await get_tree().create_timer(duration, false).timeout
 	if is_instance_valid(self):
 		_is_stunned = false
+		_routing_my_room = -2
+		_routing_target_room = -2
 		var nearest := _find_nearest_living_npc()
 		if nearest != null:
 			_current_target_npc = nearest
-			ai_agent.set_target(nearest.global_position)
 			_enter_state(EnemyState.HUNTING)
 		else:
 			_enter_idle()
@@ -470,6 +540,8 @@ func receive_lure_signal(lure_pos: Vector2) -> void:
 	_current_target_npc = null
 	_lure_target_pos = lure_pos
 	_lure_timer = 0.0
+	_routing_my_room = -2
+	_routing_target_room = -2
 	ai_agent.set_target(lure_pos)
 	_enter_state(EnemyState.LURED)
 
@@ -486,6 +558,8 @@ func _on_comms_signal_sent(room_index: int, _affected_rooms: Array) -> void:
 	_investigate_target_pos = ShipData.get_room_center_world(room_index)
 	_is_investigating = true
 	if current_state == EnemyState.IDLE or current_state == EnemyState.RESTING:
+		_routing_my_room = -2
+		_routing_target_room = -2
 		ai_agent.set_target(_investigate_target_pos)
 		_enter_state(EnemyState.HUNTING)
 
@@ -503,7 +577,8 @@ func _process_lured(delta: float) -> void:
 		var nearest := _find_nearest_living_npc()
 		if nearest != null:
 			_current_target_npc = nearest
-			ai_agent.set_target(nearest.global_position)
+			_routing_my_room = -2
+			_routing_target_room = -2
 			_enter_state(EnemyState.HUNTING)
 		else:
 			_enter_idle()
