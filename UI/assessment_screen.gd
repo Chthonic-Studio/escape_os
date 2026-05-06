@@ -5,6 +5,9 @@ extends CanvasLayer
 
 const RESTART_CONFIRM_SCENE = preload("res://Scenes/restart_confirm.tscn")
 
+## Tracks the active restart-confirm popup to prevent duplicates.
+var _restart_confirm: RestartConfirm = null
+
 @onready var _title_label: Label = $Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TitleLabel
 @onready var _summary_label: Label = $Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/SummaryLabel
 @onready var _class_breakdown: VBoxContainer = $Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ClassBreakdown
@@ -66,7 +69,7 @@ func _populate(escaped: int, died: int) -> void:
 	_remark_label.text = _get_ai_remark(grade)
 	_remark_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 
-	_restart_label.text = "\n[ R — Restart Level  |  ESC — Pause Menu ]"
+	_restart_label.text = "\n[ R — Restart Level ]"
 	_restart_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 
 func _grade_color(grade: String) -> Color:
@@ -98,11 +101,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			_show_restart_confirm()
 
 func _show_restart_confirm() -> void:
-	var confirm: RestartConfirm = RESTART_CONFIRM_SCENE.instantiate() as RestartConfirm
-	add_child(confirm)
-	confirm.confirmed.connect(_do_restart)
+	## Prevent opening a second popup if one is already visible.
+	if _restart_confirm != null and is_instance_valid(_restart_confirm):
+		return
+	_restart_confirm = RESTART_CONFIRM_SCENE.instantiate() as RestartConfirm
+	add_child(_restart_confirm)
+	_restart_confirm.confirmed.connect(_do_restart)
 
 func _do_restart() -> void:
 	GameManager.reset()
+	UIManager._show_loading_screen()
 	## In story mode, reloading respawns the same level (UIManager.active_story_level_scene is kept).
 	get_tree().reload_current_scene()

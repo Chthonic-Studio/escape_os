@@ -459,10 +459,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_Q:
 				_comms_system.cycle_signal_type()
 				get_viewport().set_input_as_handled()
-			KEY_R:
-				get_viewport().set_input_as_handled()
-				GameManager.reset()
-				get_tree().reload_current_scene()
 
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:

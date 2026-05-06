@@ -6,4 +6,4 @@
 script = ExtResource("1_sld")
 level_name = "The Outbreak"
 level_description = "An unforeseen biological incident has triggered a cascade failure aboard the vessel. Evacuate all surviving personnel before hostile lifeforms overwhelm the ship.\n\nObjective: Evacuate the crew. Survive."
-level_scene_path = ""
+level_scene_path = "res://Scenes/StoryMode/story_level_base.tscn"

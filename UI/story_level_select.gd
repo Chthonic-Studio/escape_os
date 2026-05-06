@@ -132,6 +132,12 @@ func _refresh_level_button_colors() -> void:
 func _on_start_pressed() -> void:
 	if _story_data == null or _selected_level_index < 0:
 		return
+	## Validate path before closing the screen so the player isn't stranded if
+	## the level resource is misconfigured.
+	var lvl_data: StoryLevelData = _story_data.levels[_selected_level_index]
+	if lvl_data.level_scene_path.is_empty():
+		push_warning("StoryLevelSelect: level_scene_path is empty for level %d — cannot start." % _selected_level_index)
+		return
 	UIManager.start_story_level(_story_data, _selected_level_index, _selected_difficulty)
 	queue_free()
 
