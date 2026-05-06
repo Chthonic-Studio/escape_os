@@ -18,8 +18,12 @@ var enemies_active: bool = false
 var level_elapsed_time: float = 0.0
 var _timer_running: bool = false
 
-const ESCALATION_INTERVAL: float = 30.0
-const ESCALATION_STEP: float = 0.12
+## Global NPC speed multiplier applied by StoryLevelController for per-level tuning.
+var npc_global_speed_multiplier: float = 1.0
+
+## Pacing constants — story levels can override these before ship_generated fires.
+var ESCALATION_INTERVAL: float = 30.0
+var ESCALATION_STEP: float = 0.12
 var _last_escalation_time: float = 0.0
 
 signal level_complete(escaped: int, died: int)
@@ -55,6 +59,9 @@ func reset() -> void:
 	level_elapsed_time = 0.0
 	_timer_running = false
 	_last_escalation_time = 0.0
+	npc_global_speed_multiplier = 1.0
+	ESCALATION_INTERVAL = 30.0
+	ESCALATION_STEP = 0.12
 	TimeManager.reset()
 
 func start_level_timer() -> void:
@@ -130,7 +137,7 @@ func get_progress() -> float:
 func set_speed_multiplier(mult: float) -> void:
 	speed_multiplier = clampf(mult, 0.1, 3.0)
 
-## Increases speed over time.
+## Increases speed over time. Uses ESCALATION_INTERVAL/STEP which story levels can override.
 func _check_pacing_escalation() -> void:
 	if level_elapsed_time - _last_escalation_time >= ESCALATION_INTERVAL:
 		_last_escalation_time += ESCALATION_INTERVAL

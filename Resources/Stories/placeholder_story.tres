@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="StoryData" format=3 uid="uid://bstory_data01"]
+
+[ext_resource type="Script" uid="uid://bstory_data02" path="res://Scripts/Resources/story_data.gd" id="1_sd"]
+[ext_resource type="Resource" uid="uid://bstorylvl_d01" path="res://Resources/Stories/placeholder_level_1.tres" id="2_lvl1"]
+
+[resource]
+script = ExtResource("1_sd")
+story_name = "Chapter I: First Contact"
+story_description = "Deep in corporate-controlled space, a routine resupply mission goes catastrophically wrong. Hostile organisms have breached containment. You are the ship's emergency AI — your directive: maximise shareholder value through personnel retention.\n\nThis is the first chapter of the Escape OS story campaign."
+story_subtitle = "A routine mission. An extraordinary catastrophe."
+story_id = &"chapter_1"
+levels = Array[ExtResource("res://Scripts/Resources/story_level_data.gd")]([ExtResource("2_lvl1")])

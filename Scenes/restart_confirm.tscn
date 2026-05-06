@@ -1,0 +1,87 @@
+[gd_scene format=3 uid="uid://restart_confirm1"]
+
+[ext_resource type="Script" path="res://UI/restart_confirm.gd" id="1_rc"]
+[ext_resource type="FontFile" uid="uid://b52e86kke41dv" path="res://Assets/PeaberryMono.ttf" id="2_font"]
+
+[node name="RestartConfirm" type="CanvasLayer"]
+layer = 101
+script = ExtResource("1_rc")
+
+[node name="Background" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+metadata/_edit_use_anchors_ = true
+
+[node name="CenterContainer" type="CenterContainer" parent="Background"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="PanelContainer" type="PanelContainer" parent="Background/CenterContainer"]
+custom_minimum_size = Vector2(340, 160)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="Background/CenterContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Background/CenterContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "═══ CONFIRM RESTART ═══"
+horizontal_alignment = 1
+
+[node name="Separator" type="HSeparator" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MessageLabel" type="Label" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 8
+text = "Restart the level? Current run results will be lost."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Spacer" type="Control" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="ButtonsContainer" type="HBoxContainer" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="ConfirmButton" type="Button" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(110, 36)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "CONFIRM"
+
+[node name="CancelButton" type="Button" parent="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(110, 36)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "CANCEL"
+
+[connection signal="pressed" from="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ButtonsContainer/ConfirmButton" to="." method="_on_confirm_pressed"]
+[connection signal="pressed" from="Background/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ButtonsContainer/CancelButton" to="." method="_on_cancel_pressed"]

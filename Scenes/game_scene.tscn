@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://1gvid3xcs25m"]
 
 [ext_resource type="Script" uid="uid://y7v0balo5ups" path="res://UI/game_scene.gd" id="1_x87qo"]
-[ext_resource type="PackedScene" uid="uid://cxacel25ajdx0" path="res://Scenes/greybox_level.tscn" id="2_level"]
 [ext_resource type="Texture2D" uid="uid://d8qwbl3f3vd7" path="res://Assets/Art/LD59_LogBG.png" id="3_6h5vk"]
 [ext_resource type="Texture2D" uid="uid://byjnnkbqx42cd" path="res://Assets/Art/LD59_RightPanelBG.png" id="4_fiftr"]
 [ext_resource type="Script" uid="uid://bm4kjvfq61tv1" path="res://UI/ai_log_feed.gd" id="5_logfeed"]
@@ -60,8 +59,6 @@ handle_input_locally = false
 physics_object_picking = true
 size = Vector2i(480, 266)
 render_target_update_mode = 4
-
-[node name="GreyboxLevel" parent="MarginContainer/HBoxContainer/VBoxContainer/SubViewportContainer/SubViewport" unique_id=763061618 instance=ExtResource("2_level")]
 
 [node name="Log" type="Control" parent="MarginContainer/HBoxContainer/VBoxContainer" unique_id=273440166]
 clip_contents = true

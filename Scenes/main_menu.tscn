@@ -126,36 +126,23 @@ custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
 [node name="StoryLabel" type="Label" parent="CenterContainer/VBox" unique_id=1806508106]
-visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_48xlc")
 theme_override_font_sizes/font_size = 12
 text = "STORY MODE:"
 horizontal_alignment = 1
 
 [node name="StoryButtons" type="HBoxContainer" parent="CenterContainer/VBox" unique_id=1571941578]
-visible = false
 layout_mode = 2
 theme_override_constants/separation = 20
 alignment = 1
 
-[node name="StoryButton1" type="Button" parent="CenterContainer/VBox/StoryButtons" unique_id=569882554]
-custom_minimum_size = Vector2(120, 32)
+[node name="StoryModeButton" type="Button" parent="CenterContainer/VBox/StoryButtons" unique_id=569882554]
+custom_minimum_size = Vector2(180, 40)
 layout_mode = 2
-disabled = true
-text = "CHAPTER 1"
-
-[node name="StoryButton2" type="Button" parent="CenterContainer/VBox/StoryButtons" unique_id=706545337]
-custom_minimum_size = Vector2(120, 32)
-layout_mode = 2
-disabled = true
-text = "CHAPTER 2"
-
-[node name="StoryButton3" type="Button" parent="CenterContainer/VBox/StoryButtons" unique_id=713538512]
-custom_minimum_size = Vector2(120, 32)
-layout_mode = 2
-disabled = true
-text = "CHAPTER 3"
+theme_override_fonts/font = ExtResource("2_48xlc")
+text = "STORY MODE"
 
 [node name="Spacer3" type="Control" parent="CenterContainer/VBox" unique_id=415421205]
 custom_minimum_size = Vector2(0, 10)
@@ -186,4 +173,5 @@ text = "EXIT GAME"
 [connection signal="pressed" from="CenterContainer/VBox/DifficultyButtons/EasyButton" to="." method="_on_difficulty_selected" binds= ["Easy"]]
 [connection signal="pressed" from="CenterContainer/VBox/DifficultyButtons/MediumButton" to="." method="_on_difficulty_selected" binds= ["Medium"]]
 [connection signal="pressed" from="CenterContainer/VBox/DifficultyButtons/HardButton" to="." method="_on_difficulty_selected" binds= ["Hard"]]
+[connection signal="pressed" from="CenterContainer/VBox/StoryButtons/StoryModeButton" to="." method="_on_story_mode_pressed"]
 [connection signal="pressed" from="CenterContainer/VBox/ExitButton" to="." method="_on_exit_pressed"]
