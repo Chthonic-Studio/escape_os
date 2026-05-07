@@ -12,7 +12,6 @@ const ARCADE_LEVEL_SCENE = preload("res://Scenes/greybox_level.tscn")
 const PAUSE_MENU_SCENE = preload("res://Scenes/pause_menu.tscn")
 
 @onready var game_viewport: SubViewport = $MarginContainer/HBoxContainer/VBoxContainer/SubViewportContainer/SubViewport
-@onready var _viewport_container: SubViewportContainer = $MarginContainer/HBoxContainer/VBoxContainer/SubViewportContainer
 
 var _pause_menu: PauseMenu = null
 var _assessment_screen: Node = null
@@ -47,12 +46,13 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _show_pause_menu() -> void:
 	_pause_menu.visible = true
-	## Freeze only the game world inside the SubViewport; UI keeps running.
-	_viewport_container.process_mode = Node.PROCESS_MODE_DISABLED
+	## Delegate to TimeManager so is_paused stays in sync with the HUD and
+	## the toggle_pause action can't conflict with the Esc pause menu.
+	TimeManager.set_paused(true)
 
 func _hide_pause_menu() -> void:
 	_pause_menu.visible = false
-	_viewport_container.process_mode = Node.PROCESS_MODE_ALWAYS
+	TimeManager.set_paused(false)
 
 func _on_pause_resume() -> void:
 	_hide_pause_menu()
