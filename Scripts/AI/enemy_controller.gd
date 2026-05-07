@@ -7,12 +7,18 @@ extends CharacterBody2D
 @export var chase_speed: float = 70.0
 @export var kill_range: float = 24.0
 
-const DAMAGE_PER_SECOND: float = 40.0
+## Optional behavior profile that overrides the per-field defaults above.
+## Assign an EnemyBehaviorProfile resource to define a distinct enemy type
+## without subclassing EnemyController.
+@export var behavior_profile: EnemyBehaviorProfile
+
+var _damage_per_second: float = 40.0
 
 var _retarget_timer: float = 0.0
 const RETARGET_INTERVAL: float = 0.5
 
 const DETECTION_RANGE_SQ: float = 250.0 * 250.0
+var _detection_range_sq: float = DETECTION_RANGE_SQ
 
 var _current_target_npc: Node2D = null
 var _is_stunned: bool = false
@@ -60,6 +66,15 @@ var _routing_last_target_pos: Vector2 = Vector2.INF
 func _ready() -> void:
 	assert(ai_agent != null, "EnemyController requires an AIAgentComponent.")
 	add_to_group("enemies")
+
+	## Apply behavior profile overrides when one is assigned.
+	if behavior_profile:
+		chase_speed = behavior_profile.chase_speed
+		kill_range = behavior_profile.kill_range
+		_damage_per_second = behavior_profile.damage_per_second
+		var r: float = behavior_profile.detection_range
+		_detection_range_sq = r * r
+
 	ai_agent.base_speed = chase_speed * GameManager.speed_multiplier
 	ai_agent.safe_velocity_computed.connect(_on_safe_velocity_computed)
 	_last_position = global_position
@@ -121,6 +136,17 @@ func _process_hunting(delta: float) -> void:
 		_pick_nearest_target()
 
 	if not is_instance_valid(_current_target_npc):
+		if _is_investigating:
+			## Following a director hint or comms signal — navigate until arrival,
+			## then fall back to idle.  _pick_nearest_target() above runs every
+			## RETARGET_INTERVAL and will cancel the investigation if a live NPC
+			## is found along the way.
+			if ai_agent.nav_agent.is_navigation_finished():
+				_is_investigating = false
+				_check_if_trapped()
+				if current_state != EnemyState.ATTACKING_DOOR:
+					_enter_idle()
+			return
 		_check_if_trapped()
 		if current_state != EnemyState.ATTACKING_DOOR:
 			_enter_idle()
@@ -130,7 +156,8 @@ func _process_hunting(delta: float) -> void:
 		var my_room: int = ShipData.get_room_at_world_pos(global_position)
 		var target_room: int = ShipData.get_room_at_world_pos(_current_target_npc.global_position)
 		if my_room >= 0 and target_room >= 0 and my_room != target_room:
-			var blocking_door := _find_blocking_door_toward(my_room, target_room)
+			var can_break: bool = behavior_profile.can_break_doors if behavior_profile else true
+			var blocking_door := _find_blocking_door_toward(my_room, target_room) if can_break else null
 			if blocking_door != null:
 				_enter_attacking_door(blocking_door)
 				return
@@ -149,7 +176,7 @@ func _process_hunting(delta: float) -> void:
 
 	if _is_in_kill_range(_current_target_npc):
 		if _current_target_npc is HumanController:
-			var killed: bool = _current_target_npc.take_damage(DAMAGE_PER_SECOND * delta)
+			var killed: bool = _current_target_npc.take_damage(_damage_per_second * delta)
 			_update_info_label()
 			if killed:
 				_on_target_killed()
@@ -214,7 +241,7 @@ func _process_idle(delta: float) -> void:
 		var nearest := _find_nearest_living_npc()
 		if nearest != null:
 			var d: float = global_position.distance_squared_to(nearest.global_position)
-			if d < DETECTION_RANGE_SQ:
+			if d < _detection_range_sq:
 				_current_target_npc = nearest
 				_routing_my_room = -2
 				_routing_target_room = -2
@@ -253,7 +280,9 @@ func _enter_resting() -> void:
 	_current_target_npc = null
 	_rest_timer = 0.0
 	_rest_wander_timer = 0.0
-	_rest_duration = randf_range(3.0, 5.0)
+	var min_rest: float = behavior_profile.rest_duration_min if behavior_profile else 3.0
+	var max_rest: float = behavior_profile.rest_duration_max if behavior_profile else 5.0
+	_rest_duration = randf_range(min_rest, max_rest)
 	_is_investigating = false
 	_routing_my_room = -2
 	_routing_target_room = -2
@@ -262,6 +291,10 @@ func _enter_resting() -> void:
 
 ## Attacks a closed door if no NPCs are reachable.
 func _check_if_trapped() -> void:
+	var can_break: bool = behavior_profile.can_break_doors if behavior_profile else true
+	if not can_break:
+		return
+
 	var my_room: int = ShipData.get_room_at_world_pos(global_position)
 	if my_room < 0:
 		return
@@ -460,6 +493,8 @@ func _pick_nearest_target() -> void:
 	_routing_my_room = -2
 	_routing_target_room = -2
 	if is_instance_valid(_current_target_npc):
+		## Found a real target — cancel any ongoing investigation.
+		_is_investigating = false
 		ai_agent.set_target(_current_target_npc.global_position)
 
 func _on_target_killed() -> void:
@@ -470,7 +505,7 @@ func _on_target_killed() -> void:
 	var nearest := _find_nearest_living_npc()
 	if nearest != null:
 		var d: float = global_position.distance_squared_to(nearest.global_position)
-		if d < DETECTION_RANGE_SQ:
+		if d < _detection_range_sq:
 			_current_target_npc = nearest
 			_enter_state(EnemyState.HUNTING)
 			return
@@ -490,7 +525,7 @@ func _on_safe_velocity_computed(safe_velocity: Vector2) -> void:
 		var collider: Object = collision.get_collider()
 		if collider is HumanController:
 			if collider.state_machine.current_state != NPCStateMachine.State.DEAD:
-				var killed: bool = collider.take_damage(DAMAGE_PER_SECOND * dt)
+				var killed: bool = collider.take_damage(_damage_per_second * dt)
 				if killed:
 					_on_target_killed()
 
@@ -533,6 +568,28 @@ func stun(duration: float) -> void:
 		else:
 			_enter_idle()
 
+## Receives a room-level hint from the Enemy Director (global brain).
+## When the hunter is idle or resting, this nudges it toward the hinted room
+## so it can hunt locally once it arrives.  The hint_receptiveness value in the
+## behavior profile controls the probability of acting on the hint.
+func receive_director_hint(room_index: int) -> void:
+	if _is_stunned:
+		return
+	if current_state != EnemyState.IDLE and current_state != EnemyState.RESTING:
+		return
+	var receptiveness: float = behavior_profile.hint_receptiveness if behavior_profile else 0.85
+	if randf() > receptiveness:
+		return
+	var hint_pos: Vector2 = ShipData.get_room_center_world(room_index)
+	if hint_pos == Vector2.ZERO:
+		return
+	_investigate_target_pos = hint_pos
+	_is_investigating = true
+	_routing_my_room = -2
+	_routing_target_room = -2
+	ai_agent.set_target(hint_pos)
+	_enter_state(EnemyState.HUNTING)
+
 ## Handles incoming lure signal.
 func receive_lure_signal(lure_pos: Vector2) -> void:
 	if _is_stunned:
@@ -553,7 +610,7 @@ func _on_comms_signal_sent(room_index: int, _affected_rooms: Array) -> void:
 		return
 	if is_instance_valid(_current_target_npc) and current_state == EnemyState.HUNTING:
 		var dist_sq: float = global_position.distance_squared_to(_current_target_npc.global_position)
-		if dist_sq < DETECTION_RANGE_SQ:
+		if dist_sq < _detection_range_sq:
 			return
 	_investigate_target_pos = ShipData.get_room_center_world(room_index)
 	_is_investigating = true
@@ -600,7 +657,9 @@ func _update_info_label() -> void:
 			var pct: int = roundi((_door_attack_timer / DOOR_ATTACK_DURATION) * 100.0)
 			status = "BREAKING %d%%" % pct
 		EnemyState.HUNTING:
-			if is_instance_valid(_current_target_npc) and _current_target_npc is HumanController:
+			if _is_investigating:
+				status = "INVESTIGATING"
+			elif is_instance_valid(_current_target_npc) and _current_target_npc is HumanController:
 				if _is_in_kill_range(_current_target_npc):
 					var hp_pct: int = roundi((_current_target_npc.health / HumanController.MAX_HEALTH) * 100.0)
 					status = "KILLING %d%%" % hp_pct

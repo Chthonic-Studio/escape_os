@@ -31,6 +31,7 @@ PriorityList="*uid://bqb7pkokkvioo"
 ShipData="*uid://cnw2f3kk5it2e"
 TimeManager="*res://Scripts/Globals/time_manager.gd"
 RoomPathfinder="*res://Scripts/Systems/room_pathfinder.gd"
+EnemyDirector="*res://Scripts/AI/enemy_director.gd"
 
 [display]
 
