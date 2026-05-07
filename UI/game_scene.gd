@@ -46,13 +46,13 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _show_pause_menu() -> void:
 	_pause_menu.visible = true
-	## Pause the scene tree so NPCs/enemies freeze; PROCESS_MODE_ALWAYS UI nodes
-	## (pause menu, HUD) remain active because they bypass the tree pause.
-	get_tree().paused = true
+	## Delegate to TimeManager so is_paused stays in sync with the HUD and
+	## the toggle_pause action can't conflict with the Esc pause menu.
+	TimeManager.set_paused(true)
 
 func _hide_pause_menu() -> void:
 	_pause_menu.visible = false
-	get_tree().paused = false
+	TimeManager.set_paused(false)
 
 func _on_pause_resume() -> void:
 	_hide_pause_menu()
