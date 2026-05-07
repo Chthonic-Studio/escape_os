@@ -452,11 +452,10 @@ func _spawn_new_escape_pod() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
-		match event.keycode:
-			KEY_E:
-				_comms_system.toggle_signal_mode()
-				get_viewport().set_input_as_handled()
-		if event.is_action_pressed("cycle_signal"):
+		if event.keycode == KEY_E:
+			_comms_system.toggle_signal_mode()
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("cycle_signal"):
 			_comms_system.cycle_signal_type()
 			get_viewport().set_input_as_handled()
 
