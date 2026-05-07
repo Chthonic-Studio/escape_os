@@ -1,13 +1,13 @@
-[gd_scene format=3 uid="uid://bstorylvl_sel1"]
+[gd_scene format=3 uid="uid://d2jrabcrluakr"]
 
-[ext_resource type="Script" uid="uid://bstorylvl_sel2" path="res://UI/story_level_select.gd" id="1_sls"]
-[ext_resource type="FontFile" uid="uid://bpeaberry2" path="res://Assets/PeaberryMono.ttf" id="2_font"]
+[ext_resource type="Script" uid="uid://ce042tpc64eh1" path="res://UI/story_level_select.gd" id="1_sls"]
+[ext_resource type="FontFile" uid="uid://b52e86kke41dv" path="res://Assets/PeaberryMono.ttf" id="2_font"]
 
-[node name="StoryLevelSelect" type="CanvasLayer"]
+[node name="StoryLevelSelect" type="CanvasLayer" unique_id=1672789612]
 layer = 100
 script = ExtResource("1_sls")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=555272328]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -15,34 +15,34 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.02, 0.02, 0.05, 0.96)
 
-[node name="VBox" type="VBoxContainer" parent="Background"]
-anchors_preset = 15
+[node name="VBox" type="VBoxContainer" parent="Background" unique_id=641522847]
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 0
 
-[node name="TopMargin" type="MarginContainer" parent="Background/VBox"]
+[node name="TopMargin" type="MarginContainer" parent="Background/VBox" unique_id=1173619170]
 layout_mode = 2
 theme_override_constants/margin_left = 30
 theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 0
 
-[node name="StoryTitleLabel" type="Label" parent="Background/VBox/TopMargin"]
+[node name="StoryTitleLabel" type="Label" parent="Background/VBox/TopMargin" unique_id=495776561]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.2, 0.2, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 13
 text = "═══ SELECT LEVEL ═══"
 
-[node name="HBox" type="HBoxContainer" parent="Background/VBox"]
+[node name="HBox" type="HBoxContainer" parent="Background/VBox" unique_id=1900587797]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 0
 
-[node name="LeftPanel" type="MarginContainer" parent="Background/VBox/HBox"]
+[node name="LeftPanel" type="MarginContainer" parent="Background/VBox/HBox" unique_id=1558315339]
 custom_minimum_size = Vector2(280, 0)
 layout_mode = 2
 size_flags_vertical = 3
@@ -51,54 +51,55 @@ theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 10
 
-[node name="InnerVBox" type="VBoxContainer" parent="Background/VBox/HBox/LeftPanel"]
+[node name="InnerVBox" type="VBoxContainer" parent="Background/VBox/HBox/LeftPanel" unique_id=1544302304]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 10
 
-[node name="LevelsLabel" type="Label" parent="Background/VBox/HBox/LeftPanel/InnerVBox"]
+[node name="LevelsLabel" type="Label" parent="Background/VBox/HBox/LeftPanel/InnerVBox" unique_id=968647971]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 9
 text = "LEVELS  (hover to read description):"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Background/VBox/HBox/LeftPanel/InnerVBox"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Background/VBox/HBox/LeftPanel/InnerVBox" unique_id=1540530781]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="LevelList" type="VBoxContainer" parent="Background/VBox/HBox/LeftPanel/InnerVBox/ScrollContainer"]
+[node name="LevelList" type="VBoxContainer" parent="Background/VBox/HBox/LeftPanel/InnerVBox/ScrollContainer" unique_id=734683747]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="RightPanel" type="PanelContainer" parent="Background/VBox/HBox"]
+[node name="RightPanel" type="PanelContainer" parent="Background/VBox/HBox" unique_id=1736756153]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Margin" type="MarginContainer" parent="Background/VBox/HBox/RightPanel"]
+[node name="Margin" type="MarginContainer" parent="Background/VBox/HBox/RightPanel" unique_id=1811446290]
 layout_mode = 2
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
-[node name="VBox" type="VBoxContainer" parent="Background/VBox/HBox/RightPanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="Background/VBox/HBox/RightPanel/Margin" unique_id=1306469469]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="DescTitle" type="Label" parent="Background/VBox/HBox/RightPanel/Margin/VBox"]
+[node name="DescTitle" type="Label" parent="Background/VBox/HBox/RightPanel/Margin/VBox" unique_id=687470460]
 layout_mode = 2
-theme_override_colors/font_color = Color(1.0, 0.85, 0.3, 1)
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 11
 text = "LEVEL INFO"
 
-[node name="DescSep" type="HSeparator" parent="Background/VBox/HBox/RightPanel/Margin/VBox"]
+[node name="DescSep" type="HSeparator" parent="Background/VBox/HBox/RightPanel/Margin/VBox" unique_id=26722628]
 layout_mode = 2
 
-[node name="DescText" type="Label" parent="Background/VBox/HBox/RightPanel/Margin/VBox"]
+[node name="DescText" type="Label" parent="Background/VBox/HBox/RightPanel/Margin/VBox" unique_id=1833693113]
+custom_minimum_size = Vector2(320, 160)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
@@ -107,11 +108,11 @@ theme_override_font_sizes/font_size = 9
 text = "Hover over a level to see its description here."
 autowrap_mode = 3
 
-[node name="DifficultyRow" type="HBoxContainer" parent="Background/VBox"]
+[node name="DifficultyRow" type="HBoxContainer" parent="Background/VBox" unique_id=869498117]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="DiffMargin" type="MarginContainer" parent="Background/VBox/DifficultyRow"]
+[node name="DiffMargin" type="MarginContainer" parent="Background/VBox/DifficultyRow" unique_id=749487909]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/margin_left = 30
@@ -119,26 +120,26 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 8
 
-[node name="DiffInner" type="HBoxContainer" parent="Background/VBox/DifficultyRow/DiffMargin"]
+[node name="DiffInner" type="HBoxContainer" parent="Background/VBox/DifficultyRow/DiffMargin" unique_id=951704831]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="DiffLabel" type="Label" parent="Background/VBox/DifficultyRow/DiffMargin/DiffInner"]
+[node name="DiffLabel" type="Label" parent="Background/VBox/DifficultyRow/DiffMargin/DiffInner" unique_id=1392612443]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 10
 text = "DIFFICULTY:"
 
-[node name="DifficultyButtons" type="HBoxContainer" parent="Background/VBox/DifficultyRow/DiffMargin/DiffInner"]
+[node name="DifficultyButtons" type="HBoxContainer" parent="Background/VBox/DifficultyRow/DiffMargin/DiffInner" unique_id=1672842372]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="BottomRow" type="HBoxContainer" parent="Background/VBox"]
+[node name="BottomRow" type="HBoxContainer" parent="Background/VBox" unique_id=1362630441]
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="BottomMargin" type="MarginContainer" parent="Background/VBox/BottomRow"]
+[node name="BottomMargin" type="MarginContainer" parent="Background/VBox/BottomRow" unique_id=1927346529]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/margin_left = 30
@@ -146,19 +147,19 @@ theme_override_constants/margin_top = 0
 theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 20
 
-[node name="BottomButtons" type="HBoxContainer" parent="Background/VBox/BottomRow/BottomMargin"]
+[node name="BottomButtons" type="HBoxContainer" parent="Background/VBox/BottomRow/BottomMargin" unique_id=195067105]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 20
 
-[node name="BackButton" type="Button" parent="Background/VBox/BottomRow/BottomMargin/BottomButtons"]
+[node name="BackButton" type="Button" parent="Background/VBox/BottomRow/BottomMargin/BottomButtons" unique_id=890094782]
 custom_minimum_size = Vector2(120, 36)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 10
 text = "< BACK"
 
-[node name="StartButton" type="Button" parent="Background/VBox/BottomRow/BottomMargin/BottomButtons"]
+[node name="StartButton" type="Button" parent="Background/VBox/BottomRow/BottomMargin/BottomButtons" unique_id=1406595232]
 custom_minimum_size = Vector2(160, 36)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
