@@ -105,7 +105,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			_comms_system.toggle_signal_mode()
 			get_viewport().set_input_as_handled()
 			return
-		if event.keycode == KEY_Q:
+		if event.is_action_pressed("cycle_signal"):
 			_comms_system.cycle_signal_type()
 			get_viewport().set_input_as_handled()
 			return

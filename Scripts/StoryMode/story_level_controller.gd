@@ -276,8 +276,8 @@ func _register_door(door: DoorSystem) -> void:
 		var rect: Rect2i = ShipData.rooms[i]["rect"]
 		## Expand the rect by 2 tiles on each side (4 total) to catch doors placed
 		## exactly on room borders, which would otherwise fall just outside both rects.
-		var exp = Rect2i(rect.position - Vector2i(2, 2), rect.size + Vector2i(4, 4))
-		if exp.has_point(door_tile):
+		var expanded_rect = Rect2i(rect.position - Vector2i(2, 2), rect.size + Vector2i(4, 4))
+		if expanded_rect.has_point(door_tile):
 			touching.append(i)
 			if touching.size() >= 2:
 				break
@@ -456,9 +456,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_E:
 				_comms_system.toggle_signal_mode()
 				get_viewport().set_input_as_handled()
-			KEY_Q:
-				_comms_system.cycle_signal_type()
-				get_viewport().set_input_as_handled()
+		if event.is_action_pressed("cycle_signal"):
+			_comms_system.cycle_signal_type()
+			get_viewport().set_input_as_handled()
 
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
