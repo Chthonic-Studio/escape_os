@@ -608,16 +608,21 @@ func _on_comms_signal_sent(room_index: int, _affected_rooms: Array) -> void:
 		return
 	if room_index < 0:
 		return
+	## If actively hunting a close target, ignore the broadcast.
 	if is_instance_valid(_current_target_npc) and current_state == EnemyState.HUNTING:
 		var dist_sq: float = global_position.distance_squared_to(_current_target_npc.global_position)
 		if dist_sq < _detection_range_sq:
 			return
-	_investigate_target_pos = ShipData.get_room_center_world(room_index)
+	## Always update the nav target alongside _is_investigating so the two stay
+	## in sync.  If the current target later becomes invalid, _process_hunting()
+	## will navigate to this position rather than whatever stale target was set.
+	var comms_pos: Vector2 = ShipData.get_room_center_world(room_index)
+	_investigate_target_pos = comms_pos
 	_is_investigating = true
-	if current_state == EnemyState.IDLE or current_state == EnemyState.RESTING:
-		_routing_my_room = -2
-		_routing_target_room = -2
-		ai_agent.set_target(_investigate_target_pos)
+	_routing_my_room = -2
+	_routing_target_room = -2
+	ai_agent.set_target(comms_pos)
+	if current_state != EnemyState.HUNTING:
 		_enter_state(EnemyState.HUNTING)
 
 ## Moves toward lure target until arrival or timeout.
