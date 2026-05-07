@@ -28,7 +28,7 @@ metadata/_edit_use_anchors_ = true
 
 [node name="PanelContainer" type="PanelContainer" parent="Background/CenterContainer" unique_id=920216309]
 clip_contents = true
-custom_minimum_size = Vector2(500, 400)
+custom_minimum_size = Vector2(500, 340)
 layout_mode = 2
 size_flags_vertical = 4
 

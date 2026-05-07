@@ -112,7 +112,7 @@ func _ready() -> void:
 	add_child(bark_system)
 
 	## Apply difficulty scaling on top of the exported gameplay values.
-	var config := UIManager.get_current_level_config()
+	var config = UIManager.get_current_level_config()
 	if config:
 		_apply_difficulty_scaling(config)
 
@@ -276,7 +276,7 @@ func _register_door(door: DoorSystem) -> void:
 		var rect: Rect2i = ShipData.rooms[i]["rect"]
 		## Expand the rect by 2 tiles on each side (4 total) to catch doors placed
 		## exactly on room borders, which would otherwise fall just outside both rects.
-		var exp := Rect2i(rect.position - Vector2i(2, 2), rect.size + Vector2i(4, 4))
+		var exp = Rect2i(rect.position - Vector2i(2, 2), rect.size + Vector2i(4, 4))
 		if exp.has_point(door_tile):
 			touching.append(i)
 			if touching.size() >= 2:
@@ -509,7 +509,7 @@ func _on_comms_signal_sent(room_index: int, _affected_rooms: Array) -> void:
 	var signal_color := Color(1.0, 0.2, 0.2, 1.0)
 	if _comms_system:
 		signal_color = CommsSystem.SIGNAL_COLORS.get(_comms_system.current_signal_type, signal_color)
-	var vfx: Node2D = RIPPLE_VFX_SCENE.instantiate()
+	var vfx : CommsRippleVFX = RIPPLE_VFX_SCENE.instantiate()
 	vfx.global_position = target_pos
 	if vfx is CommsRippleVFX:
 		vfx.ripple_color = signal_color
