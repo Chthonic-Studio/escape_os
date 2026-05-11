@@ -49,9 +49,15 @@ func _ready() -> void:
 	ai_agent.safe_velocity_computed.connect(_on_safe_velocity_computed)
 
 	personality = NPCPersonality.pick_random()
-	state_machine = NPCStateMachine.new(self, personality)
 
-	_wander_to_random_point()
+	## Create the state machine as a child node so its state nodes can also
+	## be children.  The controller reference must be set before add_child()
+	## so that _ready() on the state machine can access it immediately.
+	state_machine = NPCStateMachine.new()
+	state_machine.name = "StateMachine"
+	state_machine.controller = self
+	state_machine.personality = personality
+	add_child(state_machine)
 
 	_init_glow_shader()
 
@@ -99,7 +105,7 @@ func _physics_process(delta: float) -> void:
 	if state_machine.current_state == NPCStateMachine.State.DEAD:
 		return
 
-	state_machine.process(delta)
+	state_machine.tick(delta)
 
 	_update_speed_modifier()
 

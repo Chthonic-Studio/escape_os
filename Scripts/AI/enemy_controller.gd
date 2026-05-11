@@ -14,10 +14,6 @@ extends CharacterBody2D
 
 var _damage_per_second: float = 40.0
 
-var _retarget_timer: float = 0.0
-const RETARGET_INTERVAL: float = 0.5
-
-const DETECTION_RANGE_SQ: float = 250.0 * 250.0
 var _detection_range_sq: float = DETECTION_RANGE_SQ
 
 var _current_target_npc: Node2D = null
@@ -25,23 +21,6 @@ var _is_stunned: bool = false
 
 enum EnemyState { HUNTING, IDLE, RESTING, STUNNED, ATTACKING_DOOR, LURED }
 var current_state: EnemyState = EnemyState.HUNTING
-
-var _rest_timer: float = 0.0
-var _rest_duration: float = 0.0
-var _rest_wander_timer: float = 0.0
-
-var _idle_wander_timer: float = 0.0
-
-var _door_attack_target: DoorSystem = null
-var _door_attack_timer: float = 0.0
-const DOOR_ATTACK_DURATION: float = 1.0
-const DOOR_ATTACK_RANGE_MULTIPLIER: float = 4.0
-
-## Lure state — enemy follows a lure target.
-var _lure_target_pos: Vector2 = Vector2.ZERO
-var _lure_timer: float = 0.0
-const LURE_DURATION: float = 2.5
-const LURE_ARRIVAL_DIST_SQ: float = 32.0 * 32.0
 
 var _investigate_target_pos: Vector2 = Vector2.ZERO
 var _is_investigating: bool = false
@@ -63,6 +42,9 @@ var _routing_target_room: int = -2
 const SAME_ROOM_REPATH_DIST_SQ: float = 28.0 * 28.0
 var _routing_last_target_pos: Vector2 = Vector2.INF
 
+## Node-based state machine — child node, ticked from _physics_process.
+var _enemy_state_machine: EnemyStateMachineNode = null
+
 func _ready() -> void:
 	assert(ai_agent != null, "EnemyController requires an AIAgentComponent.")
 	add_to_group("enemies")
@@ -78,6 +60,15 @@ func _ready() -> void:
 	ai_agent.base_speed = chase_speed * GameManager.speed_multiplier
 	ai_agent.safe_velocity_computed.connect(_on_safe_velocity_computed)
 	_last_position = global_position
+
+	## Create node-based state machine before any state is used.
+	_enemy_state_machine = EnemyStateMachineNode.new()
+	_enemy_state_machine.name = "EnemyStateMachine"
+	_enemy_state_machine.controller = self
+	add_child(_enemy_state_machine)
+	## Activate initial state (HUNTING) without emitting EventBus signal.
+	_enemy_state_machine.activate_state(EnemyState.HUNTING)
+
 	_pick_nearest_target()
 	EventBus.comms_signal_sent.connect(_on_comms_signal_sent)
 
@@ -90,17 +81,7 @@ func _physics_process(delta: float) -> void:
 
 	ai_agent.base_speed = chase_speed * GameManager.speed_multiplier
 
-	match current_state:
-		EnemyState.HUNTING:
-			_process_hunting(delta)
-		EnemyState.IDLE:
-			_process_idle(delta)
-		EnemyState.RESTING:
-			_process_resting(delta)
-		EnemyState.ATTACKING_DOOR:
-			_process_attacking_door(delta)
-		EnemyState.LURED:
-			_process_lured(delta)
+	_enemy_state_machine.tick(delta)
 
 	ai_agent.update_velocity_and_path()
 	_check_for_deadlock(delta)
@@ -128,58 +109,6 @@ func _check_for_deadlock(delta: float) -> void:
 		else:
 			var random_offset := Vector2(randf_range(-60, 60), randf_range(-60, 60))
 			ai_agent.set_target(global_position + random_offset)
-
-func _process_hunting(delta: float) -> void:
-	_retarget_timer += delta
-	if _retarget_timer >= RETARGET_INTERVAL:
-		_retarget_timer = 0.0
-		_pick_nearest_target()
-
-	if not is_instance_valid(_current_target_npc):
-		if _is_investigating:
-			## Following a director hint or comms signal — navigate until arrival,
-			## then fall back to idle.  _pick_nearest_target() above runs every
-			## RETARGET_INTERVAL and will cancel the investigation if a live NPC
-			## is found along the way.
-			if ai_agent.nav_agent.is_navigation_finished():
-				_is_investigating = false
-				_check_if_trapped()
-				if current_state != EnemyState.ATTACKING_DOOR:
-					_enter_idle()
-			return
-		_check_if_trapped()
-		if current_state != EnemyState.ATTACKING_DOOR:
-			_enter_idle()
-		return
-
-	if _stuck_timer >= DEADLOCK_TIME_THRESHOLD * 0.5:
-		var my_room: int = ShipData.get_room_at_world_pos(global_position)
-		var target_room: int = ShipData.get_room_at_world_pos(_current_target_npc.global_position)
-		if my_room >= 0 and target_room >= 0 and my_room != target_room:
-			var can_break: bool = behavior_profile.can_break_doors if behavior_profile else true
-			var blocking_door := _find_blocking_door_toward(my_room, target_room) if can_break else null
-			if blocking_door != null:
-				_enter_attacking_door(blocking_door)
-				return
-			var alt_target := _find_alternate_target()
-			if alt_target != null:
-				_current_target_npc = alt_target
-				_routing_my_room = -2
-				_routing_target_room = -2
-				_stuck_timer = 0.0
-				return
-		_check_if_trapped()
-		if current_state == EnemyState.ATTACKING_DOOR:
-			return
-
-	_update_routing_target()
-
-	if _is_in_kill_range(_current_target_npc):
-		if _current_target_npc is HumanController:
-			var killed: bool = _current_target_npc.take_damage(_damage_per_second * delta)
-			_update_info_label()
-			if killed:
-				_on_target_killed()
 
 ## Updates the nav-agent target using room-graph A* routing.
 ## Calls ai_agent.set_target() only when the routing situation changes,
@@ -229,65 +158,19 @@ func _update_routing_target() -> void:
 		_routing_last_target_pos = door_pos
 		ai_agent.set_target(door_pos)
 
-func _process_idle(delta: float) -> void:
-	_idle_wander_timer += delta
-	if _idle_wander_timer >= 2.0:
-		_idle_wander_timer = 0.0
-		_wander_in_current_room()
-
-	_retarget_timer += delta
-	if _retarget_timer >= RETARGET_INTERVAL:
-		_retarget_timer = 0.0
-		var nearest := _find_nearest_living_npc()
-		if nearest != null:
-			var d: float = global_position.distance_squared_to(nearest.global_position)
-			if d < _detection_range_sq:
-				_current_target_npc = nearest
-				_routing_my_room = -2
-				_routing_target_room = -2
-				_enter_state(EnemyState.HUNTING)
-		else:
-			_check_if_trapped()
-
-func _process_resting(delta: float) -> void:
-	_rest_timer += delta
-	_rest_wander_timer += delta
-
-	if _rest_wander_timer >= 1.5:
-		_rest_wander_timer = 0.0
-		_wander_in_current_room()
-
-	if _rest_timer >= _rest_duration:
-		var nearest := _find_nearest_living_npc()
-		if nearest != null:
-			_current_target_npc = nearest
-			_routing_my_room = -2
-			_routing_target_room = -2
-			_enter_state(EnemyState.HUNTING)
-		else:
-			_enter_idle()
-
 func _enter_idle() -> void:
 	_current_target_npc = null
-	_idle_wander_timer = 0.0
 	_is_investigating = false
 	_routing_my_room = -2
 	_routing_target_room = -2
 	_enter_state(EnemyState.IDLE)
-	_wander_in_current_room()
 
 func _enter_resting() -> void:
 	_current_target_npc = null
-	_rest_timer = 0.0
-	_rest_wander_timer = 0.0
-	var min_rest: float = behavior_profile.rest_duration_min if behavior_profile else 3.0
-	var max_rest: float = behavior_profile.rest_duration_max if behavior_profile else 5.0
-	_rest_duration = randf_range(min_rest, max_rest)
 	_is_investigating = false
 	_routing_my_room = -2
 	_routing_target_room = -2
 	_enter_state(EnemyState.RESTING)
-	_wander_in_current_room()
 
 ## Attacks a closed door if no NPCs are reachable.
 func _check_if_trapped() -> void:
@@ -326,46 +209,15 @@ func _check_if_trapped() -> void:
 		_enter_attacking_door(closest_door)
 
 func _enter_attacking_door(door: DoorSystem) -> void:
-	_door_attack_target = door
-	_door_attack_timer = 0.0
 	_enter_state(EnemyState.ATTACKING_DOOR)
-	ai_agent.set_target(door.global_position)
-
-func _process_attacking_door(delta: float) -> void:
-	if not is_instance_valid(_door_attack_target) or _door_attack_target.is_destroyed:
-		_door_attack_target = null
-		var nearest := _find_nearest_living_npc()
-		if nearest != null:
-			_current_target_npc = nearest
-			_routing_my_room = -2
-			_routing_target_room = -2
-			_enter_state(EnemyState.HUNTING)
-		else:
-			_enter_idle()
-		return
-
-	ai_agent.set_target(_door_attack_target.global_position)
-
-	var dist_sq: float = global_position.distance_squared_to(_door_attack_target.global_position)
-	if dist_sq <= kill_range * kill_range * DOOR_ATTACK_RANGE_MULTIPLIER:
-		_door_attack_timer += delta
-		_update_info_label()
-		if _door_attack_timer >= DOOR_ATTACK_DURATION:
-			_door_attack_target.destroy()
-			_door_attack_target = null
-			var nearest := _find_nearest_living_npc()
-			if nearest != null:
-				_current_target_npc = nearest
-				_routing_my_room = -2
-				_routing_target_room = -2
-				_enter_state(EnemyState.HUNTING)
-			else:
-				_enter_idle()
-	else:
-		_door_attack_timer = 0.0
+	var ads := _enemy_state_machine.get_state(EnemyState.ATTACKING_DOOR) as EnemyAttackingDoorState
+	if ads:
+		ads.set_door(door)
 
 func _enter_state(new_state: EnemyState) -> void:
 	current_state = new_state
+	if _enemy_state_machine != null:
+		_enemy_state_machine.activate_state(new_state)
 	_update_info_label()
 
 func _wander_in_current_room() -> void:
@@ -595,11 +447,11 @@ func receive_lure_signal(lure_pos: Vector2) -> void:
 	if _is_stunned:
 		return
 	_current_target_npc = null
-	_lure_target_pos = lure_pos
-	_lure_timer = 0.0
 	_routing_my_room = -2
 	_routing_target_room = -2
-	ai_agent.set_target(lure_pos)
+	var lured := _enemy_state_machine.get_state(EnemyState.LURED) as EnemyLuredState
+	if lured:
+		lured._lure_target_pos = lure_pos
 	_enter_state(EnemyState.LURED)
 
 ## Enemies investigate signal broadcasts.
@@ -625,26 +477,6 @@ func _on_comms_signal_sent(room_index: int, _affected_rooms: Array) -> void:
 	if current_state != EnemyState.HUNTING:
 		_enter_state(EnemyState.HUNTING)
 
-## Moves toward lure target until arrival or timeout.
-func _process_lured(delta: float) -> void:
-	_lure_timer += delta
-
-	ai_agent.set_target(_lure_target_pos)
-
-	var dist_sq: float = global_position.distance_squared_to(_lure_target_pos)
-	var arrived: bool = dist_sq <= LURE_ARRIVAL_DIST_SQ
-	var expired: bool = _lure_timer >= LURE_DURATION
-
-	if arrived or expired:
-		var nearest := _find_nearest_living_npc()
-		if nearest != null:
-			_current_target_npc = nearest
-			_routing_my_room = -2
-			_routing_target_room = -2
-			_enter_state(EnemyState.HUNTING)
-		else:
-			_enter_idle()
-
 func _update_info_label() -> void:
 	if not _info_label:
 		return
@@ -659,7 +491,9 @@ func _update_info_label() -> void:
 		EnemyState.LURED:
 			status = "LURED"
 		EnemyState.ATTACKING_DOOR:
-			var pct: int = roundi((_door_attack_timer / DOOR_ATTACK_DURATION) * 100.0)
+			var ads := _enemy_state_machine.get_state(EnemyState.ATTACKING_DOOR) \
+					as EnemyAttackingDoorState if _enemy_state_machine else null
+			var pct: int = roundi(ads.attack_progress * 100.0) if ads else 0
 			status = "BREAKING %d%%" % pct
 		EnemyState.HUNTING:
 			if _is_investigating:
