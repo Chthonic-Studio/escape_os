@@ -36,7 +36,7 @@ func _on_ship_generated(_pod_positions: Array) -> void:
 		return
 
 	doors.shuffle()
-	var count: int = clampi(DOORS_TO_LOCK_BASE, DOORS_TO_LOCK_BASE, mini(DOORS_TO_LOCK_MAX, doors.size()))
+	var count: int = mini(DOORS_TO_LOCK_MAX, maxi(DOORS_TO_LOCK_BASE, doors.size()))
 	for i in range(count):
 		## Mark the door as permanently non-interactive by closing it.
 		## Full "locked" mechanic is a future extension; for now we simply

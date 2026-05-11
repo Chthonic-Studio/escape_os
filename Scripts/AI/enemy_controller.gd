@@ -14,6 +14,7 @@ extends CharacterBody2D
 
 var _damage_per_second: float = 40.0
 
+const DETECTION_RANGE_SQ: float = 250.0 * 250.0
 var _detection_range_sq: float = DETECTION_RANGE_SQ
 
 var _current_target_npc: Node2D = null

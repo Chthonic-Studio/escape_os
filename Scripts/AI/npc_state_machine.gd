@@ -43,9 +43,8 @@ var _run_boost_timer: float = 0.0
 const RUN_BOOST_DURATION: float = 2.0
 const RUN_BOOST_MULTIPLIER: float = 1.5
 
-var _panic_cooldown_timer: float = 0.0
-
-const POD_ENTRY_OVERSHOOT: float = 20.0
+## PANIC_RECOVERY_CHECK is defined here so NPCPanicState can reference it.
+const PANIC_RECOVERY_CHECK: float = 1.5
 
 ## \u2500\u2500 State-node bookkeeping \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
@@ -403,12 +402,14 @@ func _are_rooms_connected_with_open_doors(room_a: int, room_b: int) -> bool:
 		return false
 	var doors_a: Array = ShipData.room_doors.get(room_a, [])
 	var doors_b: Array = ShipData.room_doors.get(room_b, [])
+	var found_shared_door: bool = false
 	for door in doors_a:
 		if door in doors_b:
+			found_shared_door = true
 			if is_instance_valid(door) and door is DoorSystem:
 				if not door.is_open:
 					return false
-	return true
+	return found_shared_door
 
 func _state_name(state: State) -> StringName:
 	match state:

@@ -20,10 +20,10 @@ func _connect_hooks() -> void:
 func _on_run_end() -> void:
 	if EventBus.enemies_have_spawned.is_connected(_on_enemies_have_spawned):
 		EventBus.enemies_have_spawned.disconnect(_on_enemies_have_spawned)
-	## Restore global speed multiplier to its default.
-	GameManager.npc_global_speed_multiplier = 1.0
+	## Restore global speed multiplier to its pre-run value.
+	GameManager.speed_multiplier = 1.0
 
 func _on_enemies_have_spawned() -> void:
-	## Boost is applied to the GameManager global enemy speed modifier.
+	## Boost is applied to the GameManager global speed multiplier.
 	## EnemyController reads GameManager.speed_multiplier every frame.
-	GameManager.speed_multiplier *= SPEED_MULTIPLIER
+	GameManager.set_speed_multiplier(GameManager.speed_multiplier * SPEED_MULTIPLIER)
