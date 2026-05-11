@@ -84,9 +84,10 @@ func _on_command_selected(npc: Node, command: StringName) -> void:
 	close()
 	if not is_instance_valid(npc):
 		return
+	## Emit npc_command_issued as the single dispatch point.
+	## HumanController connects to this signal and dispatches via receive_comms_signal
+	## using the NPC's own room index, avoiding the invalid -1 room bug.
 	EventBus.npc_command_issued.emit(npc, command)
-	if npc.has_method("receive_comms_signal"):
-		npc.receive_comms_signal(-1, command)
 
 func _on_overlay_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:

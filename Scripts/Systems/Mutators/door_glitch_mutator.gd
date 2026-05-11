@@ -36,7 +36,8 @@ func _on_ship_generated(_pod_positions: Array) -> void:
 		return
 
 	doors.shuffle()
-	var count: int = mini(DOORS_TO_LOCK_MAX, maxi(DOORS_TO_LOCK_BASE, doors.size()))
+	## Pick a random count between BASE and MAX, but never exceed available doors.
+	var count: int = mini(doors.size(), randi_range(DOORS_TO_LOCK_BASE, DOORS_TO_LOCK_MAX))
 	for i in range(count):
 		## Mark the door as permanently non-interactive by closing it.
 		## Full "locked" mechanic is a future extension; for now we simply

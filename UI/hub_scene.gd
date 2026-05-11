@@ -61,25 +61,24 @@ func _refresh_ui() -> void:
 		var shv: float = meta.total_shv_banked if meta else 0.0
 		_shv_label.text = "SHV: %.1f" % shv
 
-	## Permanent upgrades.
+	## Permanent upgrades — iterate the upgrade_levels dict (upgrade_id → level).
 	if _upgrades_list and meta:
 		for child in _upgrades_list.get_children():
 			child.queue_free()
-		for upgrade in meta.purchased_upgrades:
-			if upgrade is PermanentUpgrade:
-				var lbl := Label.new()
-				lbl.text = "[%s] %s" % [upgrade.upgrade_id, upgrade.effect_type]
-				_upgrades_list.add_child(lbl)
+		for upgrade_id in meta.upgrade_levels:
+			var level: int = meta.upgrade_levels[upgrade_id]
+			var lbl := Label.new()
+			lbl.text = "[%s] Level %d" % [str(upgrade_id), level]
+			_upgrades_list.add_child(lbl)
 
-	## Story modules log.
+	## Story modules log — unlocked_modules contains StringName IDs, not resources.
 	if _story_log and meta:
 		for child in _story_log.get_children():
 			child.queue_free()
-		for mod in meta.unlocked_modules:
-			if mod is StoryModule:
-				var lbl := Label.new()
-				lbl.text = "[%s] %s" % [mod.module_id, mod.log_text.left(60)]
-				_story_log.add_child(lbl)
+		for module_id in meta.unlocked_modules:
+			var lbl := Label.new()
+			lbl.text = str(module_id)
+			_story_log.add_child(lbl)
 
 	## Corruption preview — show mutators that will be active in the next run.
 	if _corruption_preview:

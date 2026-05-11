@@ -494,6 +494,22 @@ func _try_open_radial_menu_or_interact(screen_pos: Vector2) -> void:
 	## Fall back to door interaction.
 	_query_interactables_at_mouse(screen_pos)
 
+func _query_interactables_at_mouse(screen_pos: Vector2) -> void:
+	var space_state: PhysicsDirectSpaceState2D = get_world_2d().direct_space_state
+	var query := PhysicsPointQueryParameters2D.new()
+	## Convert from screen-space (viewport pixels) to world-space coordinates.
+	## get_canvas_transform().affine_inverse() undoes the Camera2D + zoom transform.
+	query.position = get_canvas_transform().affine_inverse() * screen_pos
+	query.collision_mask = INTERACTABLE_COLLISION_MASK
+	query.collide_with_areas = true
+	query.collide_with_bodies = true
+	for result in space_state.intersect_point(query):
+		var collider: Node = result["collider"]
+		var parent: Node = collider.get_parent()
+		if parent is DoorSystem:
+			parent.toggle_door()
+			break
+
 ## ── signal callbacks ────────────────────────────────────────────────────────
 
 func _on_ship_generated(_pod_positions: Array) -> void:

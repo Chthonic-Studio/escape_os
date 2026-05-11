@@ -23,11 +23,18 @@ func _on_run_end() -> void:
 		EventBus.npc_command_issued.disconnect(_on_npc_command_issued)
 
 ## Randomly substitutes the command with another registered signal type.
+## The scrambled command is applied via receive_comms_signal with the NPC's own
+## room index so NPCs never path toward Vector2.ZERO (the invalid -1 room target).
+## Since HumanController's npc_command_issued handler fires first (connected earlier),
+## the scrambled call overrides the original state-machine transition in the same frame.
 func _on_npc_command_issued(npc: Node, command: StringName) -> void:
 	if randf() >= SCRAMBLE_CHANCE:
 		return
 	if not is_instance_valid(npc) or not npc.has_method("receive_comms_signal"):
 		return
 	var scrambled: StringName = CommsSystem.SIGNAL_TYPES.pick_random()
-	## Issue the scrambled command directly, bypassing the EventBus loop.
-	npc.receive_comms_signal(-1, scrambled)
+	## Use the NPC's actual room for a valid dispatch target.
+	var room_index: int = -1
+	if npc is Node2D:
+		room_index = ShipData.get_room_at_world_pos((npc as Node2D).global_position)
+	npc.receive_comms_signal(room_index, scrambled)

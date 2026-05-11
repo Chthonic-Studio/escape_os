@@ -43,6 +43,9 @@ var _run_boost_timer: float = 0.0
 const RUN_BOOST_DURATION: float = 2.0
 const RUN_BOOST_MULTIPLIER: float = 1.5
 
+var _panic_cooldown_timer: float = 0.0
+const PANIC_COOLDOWN_DURATION: float = 8.0
+
 ## PANIC_RECOVERY_CHECK is defined here so NPCPanicState can reference it.
 const PANIC_RECOVERY_CHECK: float = 1.5
 
@@ -73,8 +76,9 @@ func _ready() -> void:
 	_register_state(State.FLEEING_TO_POD,   NPCFleeingToPodState.new())
 
 	## Check for specialist state nodes added to this node before _ready() ran.
+	## Only register nodes that have explicitly set bound_state (not the default -1).
 	for child in get_children():
-		if child is NPCStateBase and not _state_map.has(child.bound_state):
+		if child is NPCStateBase and child.bound_state != -1 and not _state_map.has(child.bound_state):
 			child.controller = controller
 			child.state_machine = self
 			_state_map[child.bound_state] = child

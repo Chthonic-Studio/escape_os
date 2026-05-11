@@ -7,7 +7,10 @@ extends Resource
 ## Random seed used for this run's procedural generation.
 var run_seed: int = 0
 
-## Kernel Corruption level: 1 (minimal instability) → 10 (full chaos).
+## Kernel Corruption level: 1 (maximum instability / most mutators active) →
+## 10 (fully stable / no mutators active).
+## A mutator is active when stability_level <= mutator.stability_tier,
+## so lower values enable more mutators and higher values disable them.
 var stability_level: int = 1
 
 ## Accumulated SHV earned this run (not yet banked to MetaProgress).

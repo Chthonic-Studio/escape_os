@@ -59,6 +59,9 @@ func _ready() -> void:
 	state_machine.personality = personality
 	add_child(state_machine)
 
+	## Single dispatch point for radial-menu commands.
+	EventBus.npc_command_issued.connect(_on_npc_command_issued)
+
 	_init_glow_shader()
 
 	_init_class_color()
@@ -178,6 +181,14 @@ func receive_comms_signal(target_room_index: int, signal_type: StringName = &"mo
 	state_machine.receive_signal(target_room_index, signal_type)
 	var outline_color: Color = CommsSystem.SIGNAL_COLORS.get(signal_type, Color(0.3, 1.0, 0.3, 1.0))
 	_start_comms_flash(outline_color)
+
+## Handles npc_command_issued from the radial menu (single dispatch point).
+## Uses the NPC's own current room so commands always target a valid position.
+func _on_npc_command_issued(npc: Node, command: StringName) -> void:
+	if npc != self:
+		return
+	var my_room: int = ShipData.get_room_at_world_pos(global_position)
+	receive_comms_signal(my_room, command)
 
 func _start_comms_flash(outline_color: Color = Color(0.3, 1.0, 0.3, 1.0)) -> void:
 	_comms_flash_timer = COMMS_FLASH_DURATION
