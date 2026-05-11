@@ -17,6 +17,12 @@ var controller: HumanController = null
 ## use as NPCStateMachine in practice.
 var state_machine: Node = null  # Actually NPCStateMachine
 
+## Optional: override in specialist state nodes to declare which state enum value
+## this node handles (NPCStateMachine.State cast to int).
+## Core states are registered explicitly; this field is only needed for
+## extra state nodes injected at runtime (e.g., specialist states).
+var bound_state: int = -1
+
 ## Called once when this state becomes active.
 func on_enter() -> void:
 	pass

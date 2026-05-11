@@ -88,7 +88,9 @@ func _select_mutators() -> void:
 		return
 	current_run.active_mutators.clear()
 	for mutator in all_mutators:
-		if current_run.stability_level >= mutator.stability_tier:
+		## Mutator is active when stability_level <= stability_tier
+		## (lower stability = more corruption = more mutators active).
+		if current_run.stability_level <= mutator.stability_tier:
 			current_run.active_mutators.append(mutator)
 
 func _activate_mutators() -> void:

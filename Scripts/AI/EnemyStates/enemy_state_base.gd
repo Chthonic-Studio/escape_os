@@ -14,6 +14,10 @@ var controller: EnemyController = null
 ## Declared as Node to prevent circular-dependency at parse time.
 var state_machine: Node = null  # Actually EnemyStateMachineNode
 
+## Optional: override in extra state nodes injected at runtime.
+## Core states are registered explicitly in EnemyStateMachineNode._ready().
+var bound_state: int = -1
+
 ## Called once when this state becomes active.
 func on_enter() -> void:
 	pass

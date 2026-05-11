@@ -46,6 +46,8 @@ const RUN_BOOST_MULTIPLIER: float = 1.5
 ## PANIC_RECOVERY_CHECK is defined here so NPCPanicState can reference it.
 const PANIC_RECOVERY_CHECK: float = 1.5
 
+const POD_ENTRY_OVERSHOOT: float = 20.0
+
 ## \u2500\u2500 State-node bookkeeping \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
 var _active_state: NPCStateBase = null
