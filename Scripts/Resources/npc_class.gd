@@ -13,7 +13,10 @@ extends Resource
 @export_category("Spawn Preferences")
 @export var room_type_weights: Dictionary = {}
 
-func pick_spawn_room_type(available_types: Array) -> int:
+@export_category("Specialist")
+## Optional scene containing the specialist-specific state node to add to the
+## StateMachine at runtime.  Null for generic crewmembers.
+@export var specialist_state_scene: PackedScene = null
 	if room_type_weights.is_empty() or available_types.is_empty():
 		return -1
 

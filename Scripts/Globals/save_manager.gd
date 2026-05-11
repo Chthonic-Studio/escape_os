@@ -60,6 +60,15 @@ func save_meta(meta: MetaProgress) -> void:
 	f.store_string(JSON.stringify(d, "\t"))
 	f.close()
 
+## load_meta_progress() / save_meta_progress() are the canonical names.
+## load_meta() / save_meta() kept as aliases for backward compatibility.
+
+func save_meta_progress(meta: MetaProgress) -> void:
+	save_meta(meta)
+
+func load_meta_progress() -> MetaProgress:
+	return load_meta()
+
 func load_meta() -> MetaProgress:
 	var meta := MetaProgress.new()
 	if not FileAccess.file_exists(META_SAVE_PATH):

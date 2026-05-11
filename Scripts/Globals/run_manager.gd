@@ -12,12 +12,16 @@ extends Node
 ## The live run state; null between runs.
 var current_run: RunData = null
 
-## All available mutators registered in the pool (add more as they're built).
-var _mutator_pool: Array[CorruptionMutator] = []
+## All registered mutators (exposed for UI inspection).
+var all_mutators: Array[CorruptionMutator] = []
 
 func _ready() -> void:
 	_build_mutator_pool()
 	GameManager.level_complete.connect(_on_level_complete)
+
+## Convenience wrapper: starts a new run with default parameters.
+func start_run() -> void:
+	start_new_run()
 
 ## Creates a new run and starts it.
 func start_new_run(stability_level: int = 1, seed_value: int = -1) -> void:
@@ -37,6 +41,12 @@ func resume_run(saved: RunData) -> void:
 	_activate_mutators()
 	EventBus.run_started.emit(current_run)
 
+## Returns the stability level to use for the next run.
+func next_stability_level() -> int:
+	if current_run != null:
+		return current_run.stability_level
+	return 1
+
 ## Called when a level completes (player escaped or all NPCs dead).
 func _on_level_complete(_escaped: int, _died: int) -> void:
 	if current_run == null:
@@ -50,12 +60,12 @@ func end_run() -> void:
 	if current_run == null:
 		return
 	_deactivate_mutators()
-	var meta: MetaProgress = SaveManager.load_meta()
+	var meta: MetaProgress = SaveManager.load_meta_progress()
 	meta.total_shv_banked += current_run.shv_earned
 	meta.runs_completed += 1
 	for module_id in current_run.story_modules_unlocked:
 		meta.unlock_module(module_id)
-	SaveManager.save_meta(meta)
+	SaveManager.save_meta_progress(meta)
 	current_run.is_active = false
 	SaveManager.save_run(current_run)
 	EventBus.run_ended.emit(current_run)
@@ -68,16 +78,16 @@ func is_run_active() -> bool:
 ## ── Internal ────────────────────────────────────────────────────────────────
 
 func _build_mutator_pool() -> void:
-	_mutator_pool.append(PacketLossMutator.new())
-	_mutator_pool.append(CrowdingMutator.new())
-	_mutator_pool.append(SpeedSurgeMutator.new())
-	_mutator_pool.append(DoorGlitchMutator.new())
+	all_mutators.append(PacketLossMutator.new())
+	all_mutators.append(CrowdingMutator.new())
+	all_mutators.append(SpeedSurgeMutator.new())
+	all_mutators.append(DoorGlitchMutator.new())
 
 func _select_mutators() -> void:
 	if current_run == null:
 		return
 	current_run.active_mutators.clear()
-	for mutator in _mutator_pool:
+	for mutator in all_mutators:
 		if current_run.stability_level >= mutator.stability_tier:
 			current_run.active_mutators.append(mutator)
 

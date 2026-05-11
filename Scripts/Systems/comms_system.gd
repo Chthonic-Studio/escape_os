@@ -1,11 +1,14 @@
 class_name CommsSystem
 extends Node
 
-## Manages the comms signal mode. Press E to toggle signal mode.
+## Manages the comms signal mode.
+## Signal mode is always active — left click always fires the active signal.
+## Q = cycle backward, E = cycle forward through signal types.
 
 const SIGNAL_ADJACENCY_DEGREE: int = 2
 
-var is_signal_mode: bool = false
+## Always true — signal mode is permanently active.
+var is_signal_mode: bool = true
 var current_signal_type: StringName = &"move"
 
 const SIGNAL_TYPES: Array[StringName] = [&"move", &"run", &"wait", &"lure"]
@@ -28,28 +31,33 @@ const SIGNAL_NAMES: Dictionary = {
 func _ready() -> void:
 	add_to_group("comms_system")
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	## Signal mode is always active — set cross cursor immediately.
+	Input.set_default_cursor_shape(Input.CURSOR_CROSS)
+	EventBus.comms_mode_changed.emit(true)
 
-func toggle_signal_mode() -> void:
-	is_signal_mode = not is_signal_mode
-	EventBus.comms_mode_changed.emit(is_signal_mode)
-	_update_cursor()
-
-func deactivate_signal_mode() -> void:
-	if is_signal_mode:
-		is_signal_mode = false
-		EventBus.comms_mode_changed.emit(false)
-		_update_cursor()
-
-func cycle_signal_type() -> void:
+## Cycles to the next signal type (forward).
+func cycle_signal_forward() -> void:
 	var idx: int = SIGNAL_TYPES.find(current_signal_type)
 	idx = (idx + 1) % SIGNAL_TYPES.size()
 	current_signal_type = SIGNAL_TYPES[idx]
 
-func _update_cursor() -> void:
-	if is_signal_mode:
-		Input.set_default_cursor_shape(Input.CURSOR_CROSS)
-	else:
-		Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+## Cycles to the previous signal type (backward).
+func cycle_signal_backward() -> void:
+	var idx: int = SIGNAL_TYPES.find(current_signal_type)
+	idx = (idx - 1 + SIGNAL_TYPES.size()) % SIGNAL_TYPES.size()
+	current_signal_type = SIGNAL_TYPES[idx]
+
+## Kept for backward compatibility — behaves as cycle_signal_forward.
+func cycle_signal_type() -> void:
+	cycle_signal_forward()
+
+## Kept for backward compatibility — no longer toggles anything.
+func toggle_signal_mode() -> void:
+	cycle_signal_forward()
+
+## No-op: signal mode is always active.
+func deactivate_signal_mode() -> void:
+	pass
 
 func send_signal_to_room(room_index: int) -> void:
 	if room_index < 0:
@@ -75,5 +83,3 @@ func send_signal_to_room(room_index: int) -> void:
 				continue
 			if enemy.has_method("receive_lure_signal"):
 				enemy.receive_lure_signal(target_pos)
-
-	deactivate_signal_mode()

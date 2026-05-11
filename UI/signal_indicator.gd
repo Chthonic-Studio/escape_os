@@ -1,15 +1,21 @@
 class_name SignalIndicator
 extends PanelContainer
 
-## Shows current comms signal type.
+## Shows the full signal-type list with the currently active type highlighted.
+## All four signals are displayed as a vertical stack; the active one is
+## rendered at full opacity with a colored accent, others are dimmed.
 
 @onready var _signal_label: Label = $MarginContainer/HBoxContainer/SignalLabel
 @onready var _mode_label: Label = $MarginContainer/HBoxContainer/ModeLabel
 @onready var _color_indicator: ColorRect = $MarginContainer/HBoxContainer/ColorIndicator
 
 var _comms_system: CommsSystem = null
-var _comms_active: bool = false
+var _comms_active: bool = true
 var _last_signal_type: StringName = &""
+
+## Programmatically built list rows.
+var _list_root: VBoxContainer = null
+var _list_rows: Array[Label] = []
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -18,6 +24,7 @@ func _ready() -> void:
 	tree.node_added.connect(_on_tree_node_added)
 	tree.node_removed.connect(_on_tree_node_removed)
 	_resolve_comms_system()
+	_build_signal_list()
 	_update_display()
 
 func _exit_tree() -> void:
@@ -56,24 +63,60 @@ func _on_comms_mode_changed(active: bool) -> void:
 	_comms_active = active
 	_update_display()
 
-func _update_display() -> void:
-	if not _signal_label or not _mode_label or not _color_indicator:
+## Builds the signal-list rows as children of the existing HBoxContainer parent.
+func _build_signal_list() -> void:
+	if not _signal_label:
 		return
+	## Hide legacy single-line label/mode pair.
+	_signal_label.visible = false
+	if _mode_label:
+		_mode_label.visible = false
+	if _color_indicator:
+		_color_indicator.visible = false
 
+	## Append a VBoxContainer for the full list.
+	var hbox: HBoxContainer = _signal_label.get_parent() as HBoxContainer
+	if hbox == null:
+		return
+	_list_root = VBoxContainer.new()
+	_list_root.name = "SignalList"
+	hbox.add_child(_list_root)
+
+	for sig_type in CommsSystem.SIGNAL_TYPES:
+		var row := Label.new()
+		row.name = "Row_" + sig_type
+		row.text = CommsSystem.SIGNAL_NAMES.get(sig_type, sig_type.to_upper())
+		_list_root.add_child(row)
+		_list_rows.append(row)
+
+func _update_display() -> void:
 	var signal_type: StringName = &"move"
 	if _comms_system:
 		signal_type = _comms_system.current_signal_type
 
-	var color: Color = CommsSystem.SIGNAL_COLORS.get(signal_type, Color.WHITE)
-	var signal_name: String = CommsSystem.SIGNAL_NAMES.get(signal_type, "UNKNOWN")
+	## Update the full signal list rows.
+	for i in _list_rows.size():
+		var sig := CommsSystem.SIGNAL_TYPES[i]
+		var row: Label = _list_rows[i]
+		var sig_color: Color = CommsSystem.SIGNAL_COLORS.get(sig, Color.WHITE)
+		var sig_name: String = CommsSystem.SIGNAL_NAMES.get(sig, sig.to_upper())
+		if sig == signal_type:
+			row.text = "> %s <" % sig_name
+			row.add_theme_color_override("font_color", sig_color)
+			row.modulate.a = 1.0
+		else:
+			row.text = "  %s" % sig_name
+			row.add_theme_color_override("font_color", Color(sig_color.r, sig_color.g, sig_color.b, 0.4))
+			row.modulate.a = 1.0
 
-	_signal_label.text = "SIGNAL: %s" % signal_name
-	_signal_label.add_theme_color_override("font_color", color)
-	_color_indicator.color = color
-
-	if _comms_active:
-		_mode_label.text = "[ACTIVE]"
+	## Keep the legacy label in sync for any code that reads it externally.
+	if _signal_label:
+		var color: Color = CommsSystem.SIGNAL_COLORS.get(signal_type, Color.WHITE)
+		var name_str: String = CommsSystem.SIGNAL_NAMES.get(signal_type, "UNKNOWN")
+		_signal_label.text = "SIGNAL: %s" % name_str
+		_signal_label.add_theme_color_override("font_color", color)
+	if _color_indicator:
+		_color_indicator.color = CommsSystem.SIGNAL_COLORS.get(signal_type, Color.WHITE)
+	if _mode_label:
+		_mode_label.text = "[Q/E]"
 		_mode_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3, 0.9))
-	else:
-		_mode_label.text = "[E]COMMS"
-		_mode_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5, 0.7))
