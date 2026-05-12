@@ -10,10 +10,6 @@ extends CorruptionMutator
 ## an EscapePod scene node.  8 px radius (64 = 8²) covers floating-point drift
 ## between the stored position and the node's global_position.
 const POD_MATCH_THRESHOLD_SQ: float = 64.0
-	mutator_id = &"crowding"
-	display_name = "Crowding"
-	description = "1–2 escape pods are removed from the level after generation."
-	stability_tier = 3
 
 func _connect_hooks() -> void:
 	EventBus.ship_generated.connect(_on_ship_generated)
@@ -23,6 +19,10 @@ func _on_run_end() -> void:
 		EventBus.ship_generated.disconnect(_on_ship_generated)
 
 func _on_ship_generated(_pod_positions: Array) -> void:
+	mutator_id = &"crowding"
+	display_name = "Crowding"
+	description = "1–2 escape pods are removed from the level after generation."
+	stability_tier = 3
 	var pods_to_remove: int = randi_range(1, 2)
 	for _i in range(pods_to_remove):
 		if ShipData.escape_pod_positions.is_empty():

@@ -1,4 +1,3 @@
-class_name RadialMenu
 extends Node
 
 ## Radial specialist command menu.

@@ -71,7 +71,6 @@ animations = [{
 }]
 
 [node name="Human" type="CharacterBody2D" unique_id=478402403 node_paths=PackedStringArray("ai_agent")]
-input_pickable = false
 motion_mode = 1
 script = ExtResource("1_j03jf")
 ai_agent = NodePath("AIAgentComponent")
