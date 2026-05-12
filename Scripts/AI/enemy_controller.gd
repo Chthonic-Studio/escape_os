@@ -8,6 +8,10 @@ extends CharacterBody2D
 @export var kill_range: float = 24.0
 ## Damage dealt per second when in kill range of an NPC.
 @export var damage_per_second: float = 40.0
+## Optional behavior profile that overrides the per-field defaults above.
+## Assign an EnemyBehaviorProfile resource to define a distinct enemy type
+## without subclassing EnemyController.
+@export var behavior_profile: EnemyBehaviorProfile
 
 const DETECTION_RANGE_SQ: float = 250.0 * 250.0
 var _detection_range_sq: float = DETECTION_RANGE_SQ
