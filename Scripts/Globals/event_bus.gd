@@ -87,3 +87,15 @@ signal enemy_ready(enemy: Node)
 ## Emitted when a story level is successfully loaded and about to start.
 @warning_ignore("unused_signal")
 signal story_level_started(story_id: StringName, level_index: int)
+
+## Emitted when a player issues a direct command to an NPC (radial menu or
+## other direct-command path).  PacketLossMutator intercepts this signal.
+@warning_ignore("unused_signal")
+signal npc_command_issued(npc: Node, command: StringName)
+
+## Run lifecycle signals.
+@warning_ignore("unused_signal")
+signal run_started(run_data: RunData)
+
+@warning_ignore("unused_signal")
+signal run_ended(run_data: RunData)

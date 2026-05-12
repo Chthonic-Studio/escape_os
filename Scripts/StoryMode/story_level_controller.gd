@@ -452,22 +452,23 @@ func _spawn_new_escape_pod() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_E:
-			_comms_system.toggle_signal_mode()
+		if event.is_action_pressed("cycle_signal_forward"):
+			_comms_system.cycle_signal_forward()
 			get_viewport().set_input_as_handled()
-		elif event.is_action_pressed("cycle_signal"):
-			_comms_system.cycle_signal_type()
+			return
+		elif event.is_action_pressed("cycle_signal_backward"):
+			_comms_system.cycle_signal_backward()
 			get_viewport().set_input_as_handled()
+			return
 
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
-			if _comms_system and _comms_system.is_signal_mode:
+			## Left click always sends the active signal.
+			if _comms_system:
 				_handle_comms_click(event.position)
-			else:
-				_query_interactables_at_mouse(event.position)
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			if _comms_system and _comms_system.is_signal_mode:
-				_comms_system.deactivate_signal_mode()
+			## Right click: check for specialist NPC, fall back to door interaction.
+			_try_open_radial_menu_or_interact(event.position)
 
 func _handle_comms_click(screen_pos: Vector2) -> void:
 	var world_pos: Vector2 = get_canvas_transform().affine_inverse() * screen_pos
@@ -475,7 +476,7 @@ func _handle_comms_click(screen_pos: Vector2) -> void:
 	if room_index >= 0:
 		_comms_system.send_signal_to_room(room_index)
 
-func _query_interactables_at_mouse(screen_pos: Vector2) -> void:
+func _try_open_radial_menu_or_interact(screen_pos: Vector2) -> void:
 	var space_state: PhysicsDirectSpaceState2D = get_world_2d().direct_space_state
 	var query := PhysicsPointQueryParameters2D.new()
 	query.position = get_canvas_transform().affine_inverse() * screen_pos
@@ -483,7 +484,28 @@ func _query_interactables_at_mouse(screen_pos: Vector2) -> void:
 	query.collide_with_areas = true
 	query.collide_with_bodies = true
 	for result in space_state.intersect_point(query):
-		var parent: Node = result["collider"].get_parent()
+		var node: Node = result["collider"]
+		while node != null:
+			if node.is_in_group("specialists"):
+				RadialMenu.open_for(node, screen_pos)
+				get_viewport().set_input_as_handled()
+				return
+			node = node.get_parent()
+	## Fall back to door interaction.
+	_query_interactables_at_mouse(screen_pos)
+
+func _query_interactables_at_mouse(screen_pos: Vector2) -> void:
+	var space_state: PhysicsDirectSpaceState2D = get_world_2d().direct_space_state
+	var query := PhysicsPointQueryParameters2D.new()
+	## Convert from screen-space (viewport pixels) to world-space coordinates.
+	## get_canvas_transform().affine_inverse() undoes the Camera2D + zoom transform.
+	query.position = get_canvas_transform().affine_inverse() * screen_pos
+	query.collision_mask = INTERACTABLE_COLLISION_MASK
+	query.collide_with_areas = true
+	query.collide_with_bodies = true
+	for result in space_state.intersect_point(query):
+		var collider: Node = result["collider"]
+		var parent: Node = collider.get_parent()
 		if parent is DoorSystem:
 			parent.toggle_door()
 			break

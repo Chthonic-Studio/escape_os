@@ -101,25 +101,23 @@ func _process(delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_E:
-			_comms_system.toggle_signal_mode()
+		if event.is_action_pressed("cycle_signal_forward"):
+			_comms_system.cycle_signal_forward()
 			get_viewport().set_input_as_handled()
 			return
-		if event.is_action_pressed("cycle_signal"):
-			_comms_system.cycle_signal_type()
+		if event.is_action_pressed("cycle_signal_backward"):
+			_comms_system.cycle_signal_backward()
 			get_viewport().set_input_as_handled()
 			return
 
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
-			if _comms_system.is_signal_mode:
-				_handle_comms_click(event.position)
-			else:
-				_query_interactables_at_mouse(event.position)
+			## Left click always sends the active signal (mode is permanently on).
+			_handle_comms_click(event.position)
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			if _comms_system.is_signal_mode:
-				_comms_system.deactivate_signal_mode()
-		
+			## Right click: check for a specialist NPC under the cursor.
+			_try_open_radial_menu(event.position)
+
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.keycode:
 			KEY_1:
@@ -136,6 +134,25 @@ func _unhandled_input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 				GameManager.reset()
 				get_tree().reload_current_scene()
+
+func _try_open_radial_menu(screen_position: Vector2) -> void:
+	var space_state: PhysicsDirectSpaceState2D = get_world_2d().direct_space_state
+	var query: PhysicsPointQueryParameters2D = PhysicsPointQueryParameters2D.new()
+	query.position = get_canvas_transform().affine_inverse() * screen_position
+	query.collision_mask = INTERACTABLE_COLLISION_MASK
+	query.collide_with_areas = true
+	query.collide_with_bodies = true
+	var results: Array[Dictionary] = space_state.intersect_point(query)
+	for result in results:
+		var node: Node = result.collider
+		while node != null:
+			if node.is_in_group("specialists"):
+				RadialMenu.open_for(node, screen_position)
+				get_viewport().set_input_as_handled()
+				return
+			node = node.get_parent()
+	## Fall back to door interaction when no specialist is under cursor.
+	_query_interactables_at_mouse(screen_position)
 
 func _handle_comms_click(screen_position: Vector2) -> void:
 	var world_pos: Vector2 = get_canvas_transform().affine_inverse() * screen_position
