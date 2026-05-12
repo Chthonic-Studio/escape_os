@@ -3,6 +3,12 @@
 [ext_resource type="Script" uid="uid://ldh4yds8ssin" path="res://Scripts/AI/human_controller.gd" id="1_j03jf"]
 [ext_resource type="Texture2D" uid="uid://d3m5a5g4l88uk" path="res://Assets/Art/LD59_NPCSprite-Sheet.png" id="2_42mg8"]
 [ext_resource type="Script" uid="uid://bjf7fcjcglxnb" path="res://Scripts/AI/ai_agent_component.gd" id="2_073c6"]
+[ext_resource type="Script" uid="uid://d3npcstatemach01" path="res://Scripts/AI/npc_state_machine.gd" id="3_smach"]
+[ext_resource type="Script" uid="uid://pbctiankvms1" path="res://Scripts/AI/States/npc_idle_state.gd" id="4_idle"]
+[ext_resource type="Script" uid="uid://1y06w4vyqflt" path="res://Scripts/AI/States/npc_moving_to_signal_state.gd" id="5_move"]
+[ext_resource type="Script" uid="uid://cmx5lvo6yij3x" path="res://Scripts/AI/States/npc_panic_state.gd" id="6_panic"]
+[ext_resource type="Script" uid="uid://cmg7gesqpi6i3" path="res://Scripts/AI/States/npc_hiding_state.gd" id="7_hide"]
+[ext_resource type="Script" uid="uid://64m7lsqhyse8" path="res://Scripts/AI/States/npc_fleeing_to_pod_state.gd" id="8_flee"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_42mg8"]
 radius = 7.0
@@ -133,3 +139,21 @@ theme_override_font_sizes/font_size = 14
 text = "!"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="StateMachine" type="Node" parent="." unique_id=2001000001]
+script = ExtResource("3_smach")
+
+[node name="IDLE" type="Node" parent="StateMachine" unique_id=2001000002]
+script = ExtResource("4_idle")
+
+[node name="MOVING_TO_SIGNAL" type="Node" parent="StateMachine" unique_id=2001000003]
+script = ExtResource("5_move")
+
+[node name="PANICKING" type="Node" parent="StateMachine" unique_id=2001000004]
+script = ExtResource("6_panic")
+
+[node name="HIDING" type="Node" parent="StateMachine" unique_id=2001000005]
+script = ExtResource("7_hide")
+
+[node name="FLEEING_TO_POD" type="Node" parent="StateMachine" unique_id=2001000006]
+script = ExtResource("8_flee")

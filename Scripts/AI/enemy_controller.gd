@@ -6,13 +6,12 @@ extends CharacterBody2D
 @export var ai_agent: AIAgentComponent
 @export var chase_speed: float = 70.0
 @export var kill_range: float = 24.0
-
+## Damage dealt per second when in kill range of an NPC.
+@export var damage_per_second: float = 40.0
 ## Optional behavior profile that overrides the per-field defaults above.
 ## Assign an EnemyBehaviorProfile resource to define a distinct enemy type
 ## without subclassing EnemyController.
 @export var behavior_profile: EnemyBehaviorProfile
-
-var _damage_per_second: float = 40.0
 
 const DETECTION_RANGE_SQ: float = 250.0 * 250.0
 var _detection_range_sq: float = DETECTION_RANGE_SQ
@@ -54,7 +53,7 @@ func _ready() -> void:
 	if behavior_profile:
 		chase_speed = behavior_profile.chase_speed
 		kill_range = behavior_profile.kill_range
-		_damage_per_second = behavior_profile.damage_per_second
+		damage_per_second = behavior_profile.damage_per_second
 		var r: float = behavior_profile.detection_range
 		_detection_range_sq = r * r
 
@@ -62,11 +61,15 @@ func _ready() -> void:
 	ai_agent.safe_velocity_computed.connect(_on_safe_velocity_computed)
 	_last_position = global_position
 
-	## Create node-based state machine before any state is used.
-	_enemy_state_machine = EnemyStateMachineNode.new()
-	_enemy_state_machine.name = "EnemyStateMachine"
-	_enemy_state_machine.controller = self
-	add_child(_enemy_state_machine)
+	## Use the EnemyStateMachine child from the .tscn scene file.  The state
+	## machine auto-detects its controller via get_parent() in its own _ready().
+	_enemy_state_machine = $EnemyStateMachine as EnemyStateMachineNode
+	if _enemy_state_machine == null:
+		## Fallback: create the state machine programmatically.
+		_enemy_state_machine = EnemyStateMachineNode.new()
+		_enemy_state_machine.name = "EnemyStateMachine"
+		_enemy_state_machine.controller = self
+		add_child(_enemy_state_machine)
 	## Activate initial state (HUNTING) without emitting EventBus signal.
 	_enemy_state_machine.activate_state(EnemyState.HUNTING)
 
@@ -378,7 +381,7 @@ func _on_safe_velocity_computed(safe_velocity: Vector2) -> void:
 		var collider: Object = collision.get_collider()
 		if collider is HumanController:
 			if collider.state_machine.current_state != NPCStateMachine.State.DEAD:
-				var killed: bool = collider.take_damage(_damage_per_second * dt)
+				var killed: bool = collider.take_damage(damage_per_second * dt)
 				if killed:
 					_on_target_killed()
 

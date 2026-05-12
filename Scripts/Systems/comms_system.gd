@@ -34,6 +34,10 @@ func _ready() -> void:
 	## Signal mode is always active — set cross cursor immediately.
 	Input.set_default_cursor_shape(Input.CURSOR_CROSS)
 	EventBus.comms_mode_changed.emit(true)
+	## Respond to cycle requests emitted from the main viewport (game_scene.gd),
+	## since keyboard events do not propagate into the SubViewport automatically.
+	EventBus.cycle_signal_forward_requested.connect(cycle_signal_forward)
+	EventBus.cycle_signal_backward_requested.connect(cycle_signal_backward)
 
 ## Cycles to the next signal type (forward).
 func cycle_signal_forward() -> void:

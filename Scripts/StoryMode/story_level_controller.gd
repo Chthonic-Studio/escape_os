@@ -463,8 +463,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
-			## Left click always sends the active signal.
-			if _comms_system:
+			## Left click: interact with a clickable object under the cursor first.
+			## Only send a comms signal when no interactable is found.
+			if not _try_interact_at(event.position) and _comms_system:
 				_handle_comms_click(event.position)
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
 			## Right click: check for specialist NPC, fall back to door interaction.
@@ -492,7 +493,24 @@ func _try_open_radial_menu_or_interact(screen_pos: Vector2) -> void:
 				return
 			node = node.get_parent()
 	## Fall back to door interaction.
-	_query_interactables_at_mouse(screen_pos)
+	_try_interact_at(screen_pos)
+
+## Returns true and performs the interaction when a clickable object (door, etc.)
+## is found under the cursor; returns false otherwise.
+func _try_interact_at(screen_pos: Vector2) -> bool:
+	var space_state: PhysicsDirectSpaceState2D = get_world_2d().direct_space_state
+	var query := PhysicsPointQueryParameters2D.new()
+	query.position = get_canvas_transform().affine_inverse() * screen_pos
+	query.collision_mask = INTERACTABLE_COLLISION_MASK
+	query.collide_with_areas = true
+	query.collide_with_bodies = true
+	for result in space_state.intersect_point(query):
+		var collider: Node = result["collider"]
+		var parent: Node = collider.get_parent()
+		if parent is DoorSystem:
+			parent.toggle_door()
+			return true
+	return false
 
 func _query_interactables_at_mouse(screen_pos: Vector2) -> void:
 	var space_state: PhysicsDirectSpaceState2D = get_world_2d().direct_space_state

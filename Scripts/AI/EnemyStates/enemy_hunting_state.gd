@@ -61,7 +61,7 @@ func tick(delta: float) -> void:
 	if controller._is_in_kill_range(controller._current_target_npc):
 		if controller._current_target_npc is HumanController:
 			var killed: bool = controller._current_target_npc.take_damage(
-					controller._damage_per_second * delta)
+					controller.damage_per_second * delta)
 			controller._update_info_label()
 			if killed:
 				controller._on_target_killed()

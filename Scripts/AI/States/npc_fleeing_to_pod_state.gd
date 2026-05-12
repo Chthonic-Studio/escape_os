@@ -95,6 +95,32 @@ func pick_flee_target() -> void:
 
 	_flee_target_pod_pos = best_pod_pos
 
+	## Use the room-graph pathfinder to route toward the pod's room via the
+	## correct door, rather than blindly picking the nearest adjacent room.
+	## This prevents NPCs from ignoring available pods in non-adjacent rooms.
+	if npc_room >= 0:
+		var pod_room: int = ShipData.get_room_at_world_pos(best_pod_pos)
+		if pod_room >= 0 and pod_room != npc_room:
+			var next_room: int = RoomPathfinder.get_next_room(npc_room, pod_room)
+			if next_room >= 0 and next_room != npc_room:
+				## Navigate toward the door leading to the next room on the path.
+				var door_pos: Vector2 = RoomPathfinder.get_door_pos(npc_room, next_room)
+				## Apply congestion-aware jitter to spread NPCs through the door.
+				var congestion: int = ShipData.npc_room_counts.get(next_room, 0)
+				var jitter_scale: float = clampf(1.0 + congestion * 0.15, 1.0, 2.5)
+				var jitter := Vector2(
+					randf_range(-20, 20) * jitter_scale,
+					randf_range(-20, 20) * jitter_scale
+				)
+				controller.ai_agent.set_target(door_pos + jitter)
+				return
+		elif pod_room == npc_room:
+			## Already in the pod's room — head straight for it.
+			var offset := Vector2(randf_range(-20, 20), randf_range(-20, 20))
+			controller.ai_agent.set_target(best_pod_pos + offset)
+			return
+
+	## Fallback: greedy adjacent-room selection with congestion weighting.
 	if npc_room >= 0 and ShipData.room_adjacency.has(npc_room):
 		var neighbors: Array = ShipData.room_adjacency[npc_room]
 		if not neighbors.is_empty():

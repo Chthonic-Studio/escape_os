@@ -7,21 +7,22 @@ signal safe_velocity_computed(safe_velocity: Vector2)
 @export var nav_agent: NavigationAgent2D
 @export var base_speed: float = 60.0
 
+## How far agents detect each other for separation forces (pixels).
+@export var separation_radius: float = 18.0
+## Strength of the lateral-drift separation push.
+@export var separation_strength: float = 25.0
+## Multiplier applied to base_speed for the drift velocity cap.
+## Values > 1.0 allow agents to briefly overshoot while drifting past each other.
+@export var drift_limit_multiplier: float = 1.3
+
 var _current_target: Vector2
 var _is_path_dirty: bool = false
-
-## Separation: push agents apart when they overlap, replacing expensive RVO.
-const SEPARATION_RADIUS: float = 18.0
-const SEPARATION_RADIUS_SQ: float = SEPARATION_RADIUS * SEPARATION_RADIUS
-const SEPARATION_STRENGTH: float = 55.0
 
 func _ready() -> void:
 	assert(body != null, "AIAgentComponent requires a valid CharacterBody2D reference.")
 	assert(nav_agent != null, "AIAgentComponent requires a NavigationAgent2D reference.")
 
 	## Disable RVO — separation is handled in _compute_separation() instead.
-	## RVO is O(n * max_neighbors) per frame per agent; our simple force is cheaper
-	## and scales better when many NPCs are on screen simultaneously.
 	nav_agent.avoidance_enabled = false
 	nav_agent.radius = 8.0
 
@@ -45,8 +46,23 @@ func update_velocity_and_path() -> void:
 
 	var direction: Vector2 = current_position.direction_to(next_path_position)
 
-	var separation: Vector2 = _compute_separation()
-	var raw_velocity: Vector2 = (direction * base_speed + separation).limit_length(base_speed)
+	## Primary velocity: always move toward the next path waypoint at full speed.
+	var nav_vel: Vector2 = direction * base_speed
+
+	## Secondary (drift): separation pushes agents laterally so they slip past
+	## each other through narrow doors rather than clumping into a blob.
+	## Only the component perpendicular to travel (lateral drift) and any forward
+	## push are applied — backward separation is discarded so the agent always
+	## makes forward progress.
+	var sep: Vector2 = _compute_separation()
+	var sep_forward_dot: float = sep.dot(direction) if direction.length_squared() > 0.001 else 0.0
+	var sep_lateral: Vector2 = sep - direction * sep_forward_dot
+	## Allow only forward separation (not backward).
+	var effective_sep: Vector2 = sep_lateral
+	if sep_forward_dot > 0.0:
+		effective_sep += direction * sep_forward_dot
+
+	var raw_velocity: Vector2 = (nav_vel + effective_sep).limit_length(base_speed * drift_limit_multiplier)
 
 	safe_velocity_computed.emit(raw_velocity)
 
@@ -58,6 +74,7 @@ func _compute_separation() -> Vector2:
 	var force := Vector2.ZERO
 	var my_pos: Vector2 = body.global_position
 	var my_room: int = ShipData.get_room_at_world_pos(my_pos)
+	var radius_sq: float = separation_radius * separation_radius
 
 	## Fall back to full-cache scan when the agent is outside every room
 	## (e.g. briefly crossing a corridor threshold). This is rare, so the
@@ -70,18 +87,18 @@ func _compute_separation() -> Vector2:
 			continue
 		var delta: Vector2 = my_pos - npc.global_position
 		var dist_sq: float = delta.length_squared()
-		if dist_sq < SEPARATION_RADIUS_SQ and dist_sq > 0.01:
+		if dist_sq < radius_sq and dist_sq > 0.01:
 			var dist: float = sqrt(dist_sq)
-			force += (delta / dist) * (1.0 - dist / SEPARATION_RADIUS) * SEPARATION_STRENGTH
+			force += (delta / dist) * (1.0 - dist / separation_radius) * separation_strength
 
 	for enemy in nearby_enemies:
 		if not is_instance_valid(enemy) or enemy == body:
 			continue
 		var delta: Vector2 = my_pos - enemy.global_position
 		var dist_sq: float = delta.length_squared()
-		if dist_sq < SEPARATION_RADIUS_SQ and dist_sq > 0.01:
+		if dist_sq < radius_sq and dist_sq > 0.01:
 			var dist: float = sqrt(dist_sq)
-			force += (delta / dist) * (1.0 - dist / SEPARATION_RADIUS) * SEPARATION_STRENGTH
+			force += (delta / dist) * (1.0 - dist / separation_radius) * separation_strength
 
 	return force
 
