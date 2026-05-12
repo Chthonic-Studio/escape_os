@@ -3,6 +3,13 @@
 [ext_resource type="Script" uid="uid://cw1uwfi0um4dk" path="res://Scripts/AI/enemy_controller.gd" id="1_enemy"]
 [ext_resource type="Texture2D" uid="uid://x52ayp82ct1x" path="res://Assets/Art/LD59_Enemy-Sheet.png" id="2_afpow"]
 [ext_resource type="Script" uid="uid://bjf7fcjcglxnb" path="res://Scripts/AI/ai_agent_component.gd" id="3_ai_comp"]
+[ext_resource type="Script" uid="uid://8glcap2x4n6b" path="res://Scripts/AI/enemy_state_machine.gd" id="4_esmach"]
+[ext_resource type="Script" uid="uid://bosocad7766eu" path="res://Scripts/AI/EnemyStates/enemy_hunting_state.gd" id="5_ehunt"]
+[ext_resource type="Script" uid="uid://cx7ypqfks5264" path="res://Scripts/AI/EnemyStates/enemy_idle_state.gd" id="6_eidle"]
+[ext_resource type="Script" uid="uid://h0j76ycnpnw" path="res://Scripts/AI/EnemyStates/enemy_resting_state.gd" id="7_erest"]
+[ext_resource type="Script" uid="uid://c2xwdjuvi0ht5" path="res://Scripts/AI/EnemyStates/enemy_stunned_state.gd" id="8_estun"]
+[ext_resource type="Script" uid="uid://c75yak24u5gxf" path="res://Scripts/AI/EnemyStates/enemy_attacking_door_state.gd" id="9_eattk"]
+[ext_resource type="Script" uid="uid://yviyx8r4cd8r" path="res://Scripts/AI/EnemyStates/enemy_lured_state.gd" id="10_elure"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_enemy"]
 
@@ -116,3 +123,24 @@ theme_override_colors/font_color = Color(1, 0.1, 0.1, 0.8)
 theme_override_font_sizes/font_size = 9
 text = "HOSTILE // HUNTING"
 horizontal_alignment = 1
+
+[node name="EnemyStateMachine" type="Node" parent="." unique_id=3001000001]
+script = ExtResource("4_esmach")
+
+[node name="HUNTING" type="Node" parent="EnemyStateMachine" unique_id=3001000002]
+script = ExtResource("5_ehunt")
+
+[node name="IDLE" type="Node" parent="EnemyStateMachine" unique_id=3001000003]
+script = ExtResource("6_eidle")
+
+[node name="RESTING" type="Node" parent="EnemyStateMachine" unique_id=3001000004]
+script = ExtResource("7_erest")
+
+[node name="STUNNED" type="Node" parent="EnemyStateMachine" unique_id=3001000005]
+script = ExtResource("8_estun")
+
+[node name="ATTACKING_DOOR" type="Node" parent="EnemyStateMachine" unique_id=3001000006]
+script = ExtResource("9_eattk")
+
+[node name="LURED" type="Node" parent="EnemyStateMachine" unique_id=3001000007]
+script = ExtResource("10_elure")

@@ -65,34 +65,67 @@ func _ready() -> void:
 	set_physics_process(false)
 	set_process(false)
 
-	## controller is assigned by HumanController before add_child().
-	assert(controller != null, "NPCStateMachine: controller must be set before add_child().")
+	## Auto-detect the owning HumanController from the parent node when this
+	## state machine is declared as a child in the .tscn scene file.
+	## If controller was already set (programmatic add_child path), keep it.
+	if controller == null:
+		controller = get_parent() as HumanController
+	assert(controller != null, "NPCStateMachine: must be a child of HumanController or have controller set before add_child().")
 
-	## Instantiate state nodes.
-	_register_state(State.IDLE,             NPCIdleState.new())
-	_register_state(State.MOVING_TO_SIGNAL, NPCMovingToSignalState.new())
-	_register_state(State.PANICKING,        NPCPanicState.new())
-	_register_state(State.HIDING,           NPCHidingState.new())
-	_register_state(State.FLEEING_TO_POD,   NPCFleeingToPodState.new())
+	## Register any state nodes that were added as children in the .tscn.
+	## This allows designers to see and edit state nodes in the editor without
+	## needing to change GDScript code.
+	_try_register_tscn_children()
 
-	## Check for specialist state nodes added to this node before _ready() ran.
-	## Only register nodes that have explicitly set bound_state (not the default -1).
-	for child in get_children():
-		if child is NPCStateBase and child.bound_state != -1 and not _state_map.has(child.bound_state):
-			child.controller = controller
-			child.state_machine = self
-			_state_map[child.bound_state] = child
+	## Create any states that were not provided by the .tscn (fallback).
+	if not _state_map.has(int(State.IDLE)):
+		_register_state(State.IDLE, NPCIdleState.new())
+	if not _state_map.has(int(State.MOVING_TO_SIGNAL)):
+		_register_state(State.MOVING_TO_SIGNAL, NPCMovingToSignalState.new())
+	if not _state_map.has(int(State.PANICKING)):
+		_register_state(State.PANICKING, NPCPanicState.new())
+	if not _state_map.has(int(State.HIDING)):
+		_register_state(State.HIDING, NPCHidingState.new())
+	if not _state_map.has(int(State.FLEEING_TO_POD)):
+		_register_state(State.FLEEING_TO_POD, NPCFleeingToPodState.new())
 
 	EventBus.enemies_have_spawned.connect(_on_enemies_have_spawned)
 
 	## Start in IDLE without emitting a state-changed signal.
 	_activate_state(State.IDLE)
 
+## Scans existing children (from .tscn) and registers them by class type.
+func _try_register_tscn_children() -> void:
+	for child in get_children():
+		if not child is NPCStateBase:
+			continue
+		if child is NPCIdleState and not _state_map.has(int(State.IDLE)):
+			_register_existing_state(State.IDLE, child)
+		elif child is NPCMovingToSignalState and not _state_map.has(int(State.MOVING_TO_SIGNAL)):
+			_register_existing_state(State.MOVING_TO_SIGNAL, child)
+		elif child is NPCPanicState and not _state_map.has(int(State.PANICKING)):
+			_register_existing_state(State.PANICKING, child)
+		elif child is NPCHidingState and not _state_map.has(int(State.HIDING)):
+			_register_existing_state(State.HIDING, child)
+		elif child is NPCFleeingToPodState and not _state_map.has(int(State.FLEEING_TO_POD)):
+			_register_existing_state(State.FLEEING_TO_POD, child)
+		## Specialist nodes with an explicit bound_state override.
+		elif child.bound_state >= 0 and not _state_map.has(child.bound_state):
+			child.controller = controller
+			child.state_machine = self
+			_state_map[child.bound_state] = child
+
 func _register_state(state: State, node: NPCStateBase) -> void:
 	node.name = State.keys()[state]
 	node.controller = controller
 	node.state_machine = self
 	add_child(node)
+	_state_map[int(state)] = node
+
+## Registers a state node that already exists as a child (from the .tscn scene).
+func _register_existing_state(state: State, node: NPCStateBase) -> void:
+	node.controller = controller
+	node.state_machine = self
 	_state_map[int(state)] = node
 
 ## \u2500\u2500 Tick (called by HumanController._physics_process) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500

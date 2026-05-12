@@ -112,8 +112,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
-			## Left click always sends the active signal (mode is permanently on).
-			_handle_comms_click(event.position)
+			## Left click: interact with a clickable object under the cursor first.
+			## Only send a comms signal when no interactable is found.
+			if not _try_interact_at(event.position):
+				_handle_comms_click(event.position)
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
 			## Right click: check for a specialist NPC under the cursor.
 			_try_open_radial_menu(event.position)
@@ -135,6 +137,24 @@ func _unhandled_input(event: InputEvent) -> void:
 				GameManager.reset()
 				get_tree().reload_current_scene()
 
+## Returns true and performs the interaction when a clickable object (door,
+## airlock, etc.) is found under the cursor; returns false otherwise.
+func _try_interact_at(screen_position: Vector2) -> bool:
+	var space_state: PhysicsDirectSpaceState2D = get_world_2d().direct_space_state
+	var query: PhysicsPointQueryParameters2D = PhysicsPointQueryParameters2D.new()
+	query.position = get_canvas_transform().affine_inverse() * screen_position
+	query.collision_mask = INTERACTABLE_COLLISION_MASK
+	query.collide_with_areas = true
+	query.collide_with_bodies = true
+	var results: Array[Dictionary] = space_state.intersect_point(query)
+	for result in results:
+		var collider: Node = result.collider
+		var interactable_parent: Node = collider.get_parent()
+		if interactable_parent is DoorSystem:
+			interactable_parent.toggle_door()
+			return true
+	return false
+
 func _try_open_radial_menu(screen_position: Vector2) -> void:
 	var space_state: PhysicsDirectSpaceState2D = get_world_2d().direct_space_state
 	var query: PhysicsPointQueryParameters2D = PhysicsPointQueryParameters2D.new()
@@ -152,32 +172,13 @@ func _try_open_radial_menu(screen_position: Vector2) -> void:
 				return
 			node = node.get_parent()
 	## Fall back to door interaction when no specialist is under cursor.
-	_query_interactables_at_mouse(screen_position)
+	_try_interact_at(screen_position)
 
 func _handle_comms_click(screen_position: Vector2) -> void:
 	var world_pos: Vector2 = get_canvas_transform().affine_inverse() * screen_position
 	var room_index: int = ShipData.get_room_at_world_pos(world_pos)
 	if room_index >= 0:
 		_comms_system.send_signal_to_room(room_index)
-
-func _query_interactables_at_mouse(screen_position: Vector2) -> void:
-	var space_state: PhysicsDirectSpaceState2D = get_world_2d().direct_space_state
-	var query: PhysicsPointQueryParameters2D = PhysicsPointQueryParameters2D.new()
-	
-	query.position = get_canvas_transform().affine_inverse() * screen_position
-	query.collision_mask = INTERACTABLE_COLLISION_MASK
-	
-	query.collide_with_areas = true
-	query.collide_with_bodies = true 
-	
-	var results: Array[Dictionary] = space_state.intersect_point(query)
-	for result in results:
-		var collider: Node = result.collider
-		var interactable_parent: Node = collider.get_parent()
-		
-		if interactable_parent is DoorSystem:
-			interactable_parent.toggle_door()
-			break
 
 var _continuous_pod_spawn: bool = false
 

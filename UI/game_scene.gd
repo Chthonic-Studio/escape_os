@@ -33,6 +33,19 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
+
+	## Q/E cycle the active comms signal type.  These are handled here (in the
+	## main viewport) because keyboard events are NOT automatically forwarded
+	## into the SubViewport where the level and CommsSystem live.
+	if event.is_action_pressed("cycle_signal_forward"):
+		EventBus.cycle_signal_forward_requested.emit()
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed("cycle_signal_backward"):
+		EventBus.cycle_signal_backward_requested.emit()
+		get_viewport().set_input_as_handled()
+		return
+
 	if (event as InputEventKey).keycode != KEY_ESCAPE:
 		return
 	## Don't intercept Esc while the assessment screen is showing.

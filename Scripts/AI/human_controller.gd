@@ -6,6 +6,17 @@ extends CharacterBody2D
 const MAX_HEALTH: float = 100.0
 var health: float = MAX_HEALTH
 
+## ── Speed tuning (exported so designers can tweak without editing code) ──────
+
+## Base movement speed when idle or wandering.
+@export var idle_speed: float = 40.0
+## Movement speed when fleeing to an escape pod.
+@export var flee_speed: float = 42.0
+## Movement speed while panicking (for non-reckless personalities).
+@export var panic_speed: float = 50.0
+## Movement speed while panicking as a reckless personality.
+@export var panic_speed_reckless: float = 60.0
+
 var _stuck_timer: float = 0.0
 var _last_position: Vector2 = Vector2.ZERO
 
@@ -50,14 +61,20 @@ func _ready() -> void:
 
 	personality = NPCPersonality.pick_random()
 
-	## Create the state machine as a child node so its state nodes can also
-	## be children.  The controller reference must be set before add_child()
-	## so that _ready() on the state machine can access it immediately.
-	state_machine = NPCStateMachine.new()
-	state_machine.name = "StateMachine"
-	state_machine.controller = self
-	state_machine.personality = personality
-	add_child(state_machine)
+	## Use the StateMachine child from the .tscn scene file.  NPCStateMachine
+	## auto-detects its controller via get_parent() in its own _ready(), so
+	## we only need to update the personality here.
+	state_machine = $StateMachine as NPCStateMachine
+	if state_machine == null:
+		## Fallback: create the state machine programmatically (e.g. in tests or
+		## if the .tscn does not include a StateMachine child node).
+		state_machine = NPCStateMachine.new()
+		state_machine.name = "StateMachine"
+		state_machine.controller = self
+		state_machine.personality = personality
+		add_child(state_machine)
+	else:
+		state_machine.personality = personality
 
 	## Single dispatch point for radial-menu commands.
 	EventBus.npc_command_issued.connect(_on_npc_command_issued)
@@ -212,13 +229,13 @@ func _update_speed_modifier() -> void:
 	match state_machine.current_state:
 		NPCStateMachine.State.PANICKING:
 			if personality == NPCPersonality.Type.RECKLESS:
-				ai_agent.base_speed = 60.0 * class_mod * pacing * global_mod
+				ai_agent.base_speed = panic_speed_reckless * class_mod * pacing * global_mod
 			else:
-				ai_agent.base_speed = 50.0 * class_mod * pacing * global_mod
+				ai_agent.base_speed = panic_speed * class_mod * pacing * global_mod
 		NPCStateMachine.State.FLEEING_TO_POD:
-			ai_agent.base_speed = 42.0 * class_mod * pacing * global_mod
+			ai_agent.base_speed = flee_speed * class_mod * pacing * global_mod
 		_:
-			ai_agent.base_speed = 40.0 * class_mod * pacing * global_mod
+			ai_agent.base_speed = idle_speed * class_mod * pacing * global_mod
 
 	if state_machine._run_boost_timer > 0.0:
 		ai_agent.base_speed *= NPCStateMachine.RUN_BOOST_MULTIPLIER

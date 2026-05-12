@@ -99,3 +99,11 @@ signal run_started(run_data: RunData)
 
 @warning_ignore("unused_signal")
 signal run_ended(run_data: RunData)
+
+## Comms signal type cycling — emitted by game_scene.gd (main viewport)
+## so the SubViewport input boundary does not swallow keyboard events.
+@warning_ignore("unused_signal")
+signal cycle_signal_forward_requested
+
+@warning_ignore("unused_signal")
+signal cycle_signal_backward_requested
