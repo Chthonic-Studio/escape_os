@@ -331,7 +331,6 @@ func try_rush_pod_in_current_room() -> bool:
 	if pod_in_room == null:
 		return false
 	_navigate_into_pod(pod_in_room)
-	transition_to(State.FLEEING_TO_POD)
 	return true
 
 func try_rush_pod_in_nearby_rooms() -> bool:
@@ -344,7 +343,6 @@ func try_rush_pod_in_nearby_rooms() -> bool:
 	if pod_nearby == null:
 		return false
 	_navigate_into_pod(pod_nearby)
-	transition_to(State.FLEEING_TO_POD)
 	return true
 
 func _navigate_into_pod(pod: Node2D) -> void:

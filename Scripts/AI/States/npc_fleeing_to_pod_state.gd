@@ -119,6 +119,15 @@ func pick_flee_target() -> void:
 			var offset := Vector2(randf_range(-20, 20), randf_range(-20, 20))
 			controller.ai_agent.set_target(best_pod_pos + offset)
 			return
+		## pod_room < 0: the pod's world position isn't inside any recognised
+		## room rect (e.g. placed near a boundary).  Navigate directly to it
+		## rather than falling through to the adjacent-room heuristic, which
+		## would send the NPC away from a perfectly valid nearby pod.
+		var dist_to_pod: float = npc_pos.distance_to(best_pod_pos)
+		if dist_to_pod < 220.0:
+			var offset := Vector2(randf_range(-15, 15), randf_range(-15, 15))
+			controller.ai_agent.set_target(best_pod_pos + offset)
+			return
 
 	## Fallback: greedy adjacent-room selection with congestion weighting.
 	if npc_room >= 0 and ShipData.room_adjacency.has(npc_room):

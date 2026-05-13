@@ -75,6 +75,9 @@ func _ready() -> void:
 
 	_pick_nearest_target()
 	EventBus.comms_signal_sent.connect(_on_comms_signal_sent)
+	## Reset routing cache when doors open/close so the next _update_routing_target
+	## call re-evaluates whether a blocking door needs to be attacked.
+	EventBus.nav_graph_changed.connect(_on_nav_graph_changed)
 
 	## Register in the ShipData enemy cache via the event bus.
 	EventBus.enemy_ready.emit(self)
@@ -159,6 +162,16 @@ func _update_routing_target() -> void:
 	else:
 		## Aim at the door leading toward the target room.
 		var door_pos: Vector2 = RoomPathfinder.get_door_pos(my_room, next_room)
+		## If the direct-path door is closed and we can break doors, attack it
+		## immediately rather than waiting for stuck detection.  This prevents
+		## the enemy from wandering via an alternate navmesh detour and never
+		## triggering the break logic.
+		var can_break: bool = behavior_profile.can_break_doors if behavior_profile else true
+		if can_break:
+			var blocking_door: DoorSystem = _find_blocking_door_toward(my_room, next_room)
+			if blocking_door != null:
+				_enter_attacking_door(blocking_door)
+				return
 		_routing_last_target_pos = door_pos
 		ai_agent.set_target(door_pos)
 
@@ -511,6 +524,12 @@ func _update_info_label() -> void:
 			else:
 				status = "HUNTING"
 	_info_label.text = "HOSTILE // %s" % status
+
+## Reset routing cache whenever doors open or close so _update_routing_target
+## re-evaluates the path and proactively attacks any newly-blocking door.
+func _on_nav_graph_changed() -> void:
+	_routing_my_room = -2
+	_routing_target_room = -2
 
 func die() -> void:
 	EventBus.enemy_died.emit(self)
