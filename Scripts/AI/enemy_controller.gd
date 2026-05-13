@@ -36,8 +36,10 @@ const DEADLOCK_DIST_SQ_THRESHOLD: float = 16.0
 
 ## Room-graph routing: track the last resolved rooms so we only call
 ## ai_agent.set_target() when the situation actually changes.
-var _routing_my_room: int = -2
-var _routing_target_room: int = -2
+## ROUTING_CACHE_INVALID is a sentinel value that forces re-evaluation.
+const ROUTING_CACHE_INVALID: int = -2
+var _routing_my_room: int = ROUTING_CACHE_INVALID
+var _routing_target_room: int = ROUTING_CACHE_INVALID
 ## Minimum distance the target must move within the same room before we re-path.
 const SAME_ROOM_REPATH_DIST_SQ: float = 28.0 * 28.0
 var _routing_last_target_pos: Vector2 = Vector2.INF
@@ -178,15 +180,15 @@ func _update_routing_target() -> void:
 func _enter_idle() -> void:
 	_current_target_npc = null
 	_is_investigating = false
-	_routing_my_room = -2
-	_routing_target_room = -2
+	_routing_my_room = ROUTING_CACHE_INVALID
+	_routing_target_room = ROUTING_CACHE_INVALID
 	_enter_state(EnemyState.IDLE)
 
 func _enter_resting() -> void:
 	_current_target_npc = null
 	_is_investigating = false
-	_routing_my_room = -2
-	_routing_target_room = -2
+	_routing_my_room = ROUTING_CACHE_INVALID
+	_routing_target_room = ROUTING_CACHE_INVALID
 	_enter_state(EnemyState.RESTING)
 
 ## Attacks a closed door if no NPCs are reachable.
@@ -359,8 +361,8 @@ func _doors_open_between(room_a: int, room_b: int) -> bool:
 func _pick_nearest_target() -> void:
 	var best_npc := _find_nearest_living_npc()
 	_current_target_npc = best_npc
-	_routing_my_room = -2
-	_routing_target_room = -2
+	_routing_my_room = ROUTING_CACHE_INVALID
+	_routing_target_room = ROUTING_CACHE_INVALID
 	if is_instance_valid(_current_target_npc):
 		## Found a real target — cancel any ongoing investigation.
 		_is_investigating = false
@@ -368,8 +370,8 @@ func _pick_nearest_target() -> void:
 
 func _on_target_killed() -> void:
 	_current_target_npc = null
-	_routing_my_room = -2
-	_routing_target_room = -2
+	_routing_my_room = ROUTING_CACHE_INVALID
+	_routing_target_room = ROUTING_CACHE_INVALID
 
 	var nearest := _find_nearest_living_npc()
 	if nearest != null:
@@ -428,8 +430,8 @@ func stun(duration: float) -> void:
 	await get_tree().create_timer(duration, false).timeout
 	if is_instance_valid(self):
 		_is_stunned = false
-		_routing_my_room = -2
-		_routing_target_room = -2
+		_routing_my_room = ROUTING_CACHE_INVALID
+		_routing_target_room = ROUTING_CACHE_INVALID
 		var nearest := _find_nearest_living_npc()
 		if nearest != null:
 			_current_target_npc = nearest
@@ -454,8 +456,8 @@ func receive_director_hint(room_index: int) -> void:
 		return
 	_investigate_target_pos = hint_pos
 	_is_investigating = true
-	_routing_my_room = -2
-	_routing_target_room = -2
+	_routing_my_room = ROUTING_CACHE_INVALID
+	_routing_target_room = ROUTING_CACHE_INVALID
 	ai_agent.set_target(hint_pos)
 	_enter_state(EnemyState.HUNTING)
 
@@ -464,8 +466,8 @@ func receive_lure_signal(lure_pos: Vector2) -> void:
 	if _is_stunned:
 		return
 	_current_target_npc = null
-	_routing_my_room = -2
-	_routing_target_room = -2
+	_routing_my_room = ROUTING_CACHE_INVALID
+	_routing_target_room = ROUTING_CACHE_INVALID
 	var lured := _enemy_state_machine.get_state(EnemyState.LURED) as EnemyLuredState
 	if lured:
 		lured._lure_target_pos = lure_pos
@@ -488,8 +490,8 @@ func _on_comms_signal_sent(room_index: int, _affected_rooms: Array) -> void:
 	var comms_pos: Vector2 = ShipData.get_room_center_world(room_index)
 	_investigate_target_pos = comms_pos
 	_is_investigating = true
-	_routing_my_room = -2
-	_routing_target_room = -2
+	_routing_my_room = ROUTING_CACHE_INVALID
+	_routing_target_room = ROUTING_CACHE_INVALID
 	ai_agent.set_target(comms_pos)
 	if current_state != EnemyState.HUNTING:
 		_enter_state(EnemyState.HUNTING)
@@ -528,8 +530,8 @@ func _update_info_label() -> void:
 ## Reset routing cache whenever doors open or close so _update_routing_target
 ## re-evaluates the path and proactively attacks any newly-blocking door.
 func _on_nav_graph_changed() -> void:
-	_routing_my_room = -2
-	_routing_target_room = -2
+	_routing_my_room = ROUTING_CACHE_INVALID
+	_routing_target_room = ROUTING_CACHE_INVALID
 
 func die() -> void:
 	EventBus.enemy_died.emit(self)

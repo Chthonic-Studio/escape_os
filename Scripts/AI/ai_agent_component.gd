@@ -15,6 +15,13 @@ signal safe_velocity_computed(safe_velocity: Vector2)
 ## Values > 1.0 allow agents to briefly overshoot while drifting past each other.
 @export var drift_limit_multiplier: float = 1.3
 
+## Squared-magnitude threshold below which the lateral separation component
+## is considered negligible (used for inline-stack detection).
+const INLINE_LATERAL_THRESHOLD: float = 0.5
+## Fraction of the backward separation magnitude applied as a lateral push
+## when agents are detected as stacked inline.
+const INLINE_SEPARATION_SCALE: float = 0.65
+
 var _current_target: Vector2
 var _is_path_dirty: bool = false
 
@@ -61,7 +68,7 @@ func update_velocity_and_path() -> void:
 	var effective_sep: Vector2 = sep_lateral
 	if sep_forward_dot > 0.0:
 		effective_sep += direction * sep_forward_dot
-	elif sep_lateral.length_squared() < 0.5 and sep.length_squared() > 0.5:
+	elif sep_lateral.length_squared() < INLINE_LATERAL_THRESHOLD and sep.length_squared() > INLINE_LATERAL_THRESHOLD:
 		## Inline-stack case: agents directly behind each other share the same
 		## travel direction, so the separation force is entirely backward and the
 		## lateral component cancels to zero.  Rotate the force 90° using a
@@ -69,7 +76,7 @@ func update_velocity_and_path() -> void:
 		## directions instead of all piling toward the same side.
 		var lat_sign: float = 1.0 if (body.get_instance_id() & 1) == 0 else -1.0
 		var perp: Vector2 = Vector2(-direction.y, direction.x) * lat_sign
-		effective_sep = perp * sep.length() * 0.65
+		effective_sep = perp * sep.length() * INLINE_SEPARATION_SCALE
 
 	var raw_velocity: Vector2 = (nav_vel + effective_sep).limit_length(base_speed * drift_limit_multiplier)
 
