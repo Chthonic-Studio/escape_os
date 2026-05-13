@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="LD59"
+config/name="ESCAPE_OS"
 config/description="Emergency Evacuation Intelligence — LD59"
 config/version="0.1.0"
 run/main_scene="res://Scenes/game_scene.tscn"
