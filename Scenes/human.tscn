@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://ldh4yds8ssin" path="res://Scripts/AI/human_controller.gd" id="1_j03jf"]
 [ext_resource type="Texture2D" uid="uid://d3m5a5g4l88uk" path="res://Assets/Art/LD59_NPCSprite-Sheet.png" id="2_42mg8"]
 [ext_resource type="Script" uid="uid://bjf7fcjcglxnb" path="res://Scripts/AI/ai_agent_component.gd" id="2_073c6"]
-[ext_resource type="Script" uid="uid://d3npcstatemach01" path="res://Scripts/AI/npc_state_machine.gd" id="3_smach"]
+[ext_resource type="Script" uid="uid://tdlrdo2mtomq" path="res://Scripts/AI/npc_state_machine.gd" id="3_smach"]
 [ext_resource type="Script" uid="uid://pbctiankvms1" path="res://Scripts/AI/States/npc_idle_state.gd" id="4_idle"]
 [ext_resource type="Script" uid="uid://1y06w4vyqflt" path="res://Scripts/AI/States/npc_moving_to_signal_state.gd" id="5_move"]
 [ext_resource type="Script" uid="uid://cmx5lvo6yij3x" path="res://Scripts/AI/States/npc_panic_state.gd" id="6_panic"]
@@ -80,6 +80,9 @@ animations = [{
 motion_mode = 1
 script = ExtResource("1_j03jf")
 ai_agent = NodePath("AIAgentComponent")
+flee_speed = 50.0
+panic_speed = 60.0
+panic_speed_reckless = 70.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=466946455]
 shape = SubResource("CapsuleShape2D_42mg8")
@@ -95,6 +98,8 @@ animation = &"moving"
 script = ExtResource("2_073c6")
 body = NodePath("..")
 nav_agent = NodePath("../NavAgent")
+separation_radius = 20.0
+separation_strength = 40.0
 
 [node name="InfoBox" type="Control" parent="." unique_id=532639757]
 z_index = 10
