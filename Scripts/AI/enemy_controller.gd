@@ -164,13 +164,13 @@ func _update_routing_target() -> void:
 	else:
 		## Aim at the door leading toward the target room.
 		var door_pos: Vector2 = RoomPathfinder.get_door_pos(my_room, next_room)
-		## If the direct-path door is closed and we can break doors, attack it
-		## immediately rather than waiting for stuck detection.  This prevents
-		## the enemy from wandering via an alternate navmesh detour and never
-		## triggering the break logic.
+		## If the door directly connecting my_room→next_room is closed and we
+		## can break doors, attack it immediately rather than waiting for stuck
+		## detection.  Use the strict helper (no fallback) so we never start
+		## breaking an unrelated door that doesn't connect to next_room.
 		var can_break: bool = behavior_profile.can_break_doors if behavior_profile else true
 		if can_break:
-			var blocking_door: DoorSystem = _find_blocking_door_toward(my_room, next_room)
+			var blocking_door: DoorSystem = _find_closed_door_between(my_room, next_room)
 			if blocking_door != null:
 				_enter_attacking_door(blocking_door)
 				return
@@ -321,6 +321,21 @@ func _find_blocking_door_toward(my_room: int, target_room: int) -> DoorSystem:
 			closest_door = door
 
 	return closest_door
+
+## Finds the closed door directly between two adjacent rooms.
+## Unlike _find_blocking_door_toward(), this has no fallback — it returns null
+## when no closed door directly connects room_a to room_b.  Used for proactive
+## routing so we never attack an unrelated door in the current room.
+func _find_closed_door_between(room_a: int, room_b: int) -> DoorSystem:
+	var room_doors_arr: Array = ShipData.room_doors.get(room_a, [])
+	for door in room_doors_arr:
+		if not is_instance_valid(door) or not door is DoorSystem:
+			continue
+		if door.is_destroyed or door.is_open:
+			continue
+		if door.room_a_index == room_b or door.room_b_index == room_b:
+			return door
+	return null
 
 ## Finds a different reachable NPC target.
 func _find_alternate_target() -> Node2D:
