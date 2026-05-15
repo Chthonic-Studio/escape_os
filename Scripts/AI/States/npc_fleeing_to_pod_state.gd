@@ -15,6 +15,9 @@ var _flee_target_pod_pos: Vector2 = Vector2.ZERO
 var _blacklisted_pods: Dictionary = {}
 var _blacklist_recheck_timer: float = 0.0
 const BLACKLIST_RECHECK_INTERVAL: float = 5.0
+## Maximum distance at which an unregistered pod (pod_room < 0) is still
+## navigated toward directly rather than routing via an adjacent room.
+const DIRECT_POD_NAVIGATION_RADIUS: float = 220.0
 
 func on_enter() -> void:
 	reset_flee_state()
@@ -117,6 +120,15 @@ func pick_flee_target() -> void:
 		elif pod_room == npc_room:
 			## Already in the pod's room — head straight for it.
 			var offset := Vector2(randf_range(-20, 20), randf_range(-20, 20))
+			controller.ai_agent.set_target(best_pod_pos + offset)
+			return
+		## pod_room < 0: the pod's world position isn't inside any recognised
+		## room rect (e.g. placed near a boundary).  Navigate directly to it
+		## rather than falling through to the adjacent-room heuristic, which
+		## would send the NPC away from a perfectly valid nearby pod.
+		var dist_to_pod: float = npc_pos.distance_to(best_pod_pos)
+		if dist_to_pod < DIRECT_POD_NAVIGATION_RADIUS:
+			var offset := Vector2(randf_range(-15, 15), randf_range(-15, 15))
 			controller.ai_agent.set_target(best_pod_pos + offset)
 			return
 

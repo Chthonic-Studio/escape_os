@@ -330,8 +330,13 @@ func try_rush_pod_in_current_room() -> bool:
 		pod_in_room = _get_closest_active_pod_within(150.0)
 	if pod_in_room == null:
 		return false
+	## Transition first so the NPC enters flee speed/behaviour, then override
+	## the navigation target with the exact pod position.  When already in
+	## FLEEING_TO_POD, skip re-entry so pick_flee_target() doesn't overwrite
+	## the target we're about to set.
+	if current_state != State.FLEEING_TO_POD:
+		transition_to(State.FLEEING_TO_POD)
 	_navigate_into_pod(pod_in_room)
-	transition_to(State.FLEEING_TO_POD)
 	return true
 
 func try_rush_pod_in_nearby_rooms() -> bool:
@@ -343,8 +348,9 @@ func try_rush_pod_in_nearby_rooms() -> bool:
 	var pod_nearby := _get_active_pod_in_adjacent_rooms(npc_room)
 	if pod_nearby == null:
 		return false
+	if current_state != State.FLEEING_TO_POD:
+		transition_to(State.FLEEING_TO_POD)
 	_navigate_into_pod(pod_nearby)
-	transition_to(State.FLEEING_TO_POD)
 	return true
 
 func _navigate_into_pod(pod: Node2D) -> void:

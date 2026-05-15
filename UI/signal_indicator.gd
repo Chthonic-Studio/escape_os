@@ -42,11 +42,13 @@ func _resolve_comms_system() -> void:
 		_last_signal_type = &""
 
 func _on_tree_node_added(node: Node) -> void:
-	if _comms_system == null and node.is_in_group("comms_system"):
-		_comms_system = node as CommsSystem
-		if _comms_system:
-			_last_signal_type = _comms_system.current_signal_type
-			_update_display()
+	## node_added fires before the node's _ready(), so is_in_group() would be
+	## false here (CommsSystem calls add_to_group in _ready()).  Check by class
+	## type instead, which is available as soon as the node is instantiated.
+	if _comms_system == null and node is CommsSystem:
+		_comms_system = node
+		_last_signal_type = _comms_system.current_signal_type
+		_update_display()
 
 func _on_tree_node_removed(node: Node) -> void:
 	if node == _comms_system:
